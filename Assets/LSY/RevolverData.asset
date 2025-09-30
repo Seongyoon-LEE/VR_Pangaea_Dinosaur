@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc819fcf5864460408af33a2d54b5c0a, type: 3}
   m_Name: RevolverData
   m_EditorClassIdentifier: 
-  maxAmmo: 6
+  maxAmmo: 100
   curAmmo: 0
   damage: 10
   range: 100

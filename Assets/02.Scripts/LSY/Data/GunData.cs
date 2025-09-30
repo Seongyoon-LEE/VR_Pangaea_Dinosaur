@@ -7,7 +7,7 @@ using UnityEngine;
 public class GunData : ScriptableObject
 {
     [Header("총알 정보")]
-    public int maxAmmo = 6;       // 최대 탄약
+    public int maxAmmo = 100;       // 최대 탄약
     public int curAmmo;          // 현재 탄약
 
     [Header("발사 정보")]
