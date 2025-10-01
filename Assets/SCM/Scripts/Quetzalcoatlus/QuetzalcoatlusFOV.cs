@@ -7,6 +7,7 @@ public class QuetzalcoatlusFOV : MonoBehaviour
     private readonly string playerTag = "Player";
 
     QuetzalcoatlusCtrl player;
+    public float baseLengthScale = 1.0f;
     void Start()
     {
         player = transform.root.GetComponent<QuetzalcoatlusCtrl>();
