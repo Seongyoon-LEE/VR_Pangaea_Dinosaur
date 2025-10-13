@@ -1,29 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 public class TitanboaCtrl : MonoBehaviour
 {
+    private readonly int hashForward = Animator.StringToHash("Forward");
+    private readonly int hashBack = Animator.StringToHash("Back");
     Animator animator;
+    Rig rig;
     public bool isTirrger = false;
     void Start()
     {
-        animator = GetComponent<Animator>();
+        animator = GetComponentInChildren<Animator>();
+        rig = GetComponentInChildren<Rig>();
     }
 
-    void FixedUpdate()
+    public void OnBoaTigger(bool type)
     {
-        if (isTirrger)
+        if (isTirrger != type)
         {
-
+            animator.SetTrigger(type ? hashForward : hashBack);
+            rig.weight = type ? 1f : 0f;
+            isTirrger = type;
         }
     }
-
-    public void OnBoaTigger()
-    {
-        isTirrger = true;
-        // 애니메이션으로 등장
-    }
-
-
 }
