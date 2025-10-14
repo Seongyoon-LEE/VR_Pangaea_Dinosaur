@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using UnityEngine;
 using UnityEngine.AI;
@@ -41,12 +42,13 @@ public class DragonflyMove : MonoBehaviour
         StartCoroutine(StatusCheck());
         StartCoroutine(FindPlayer());
         path = GameObject.Find("DragonflyPoints").GetComponent<PatrolPoints>();
-        PositionIndexSet(true);
-        while(!PositionSetComplete())
+        PointIndexSet(true);
+        while(!PointSetComplete())
         {
             yield return null;
         }
-        transform.position = path.GetWayPoint(idx);
+        RespawnPosition(path.GetWayPoint(idx));
+        //transform.position = path.GetWayPoint(idx);
     }
 
     IEnumerator StatusCheck()
@@ -131,9 +133,9 @@ public class DragonflyMove : MonoBehaviour
     // 포인트로 복귀하는 로직
     void OnReturn()
     {
-        PositionIndexSet(false);
+        PointIndexSet(false);
 
-        if(!PositionSetComplete())
+        if(!PointSetComplete())
         {
             return;
         }
@@ -184,8 +186,10 @@ public class DragonflyMove : MonoBehaviour
         }
     }
 
-    public void PositionIndexSet(bool isRandom)
+    // 잠자리의 패트롤 포인트 설정
+    public void PointIndexSet(bool isRandom)
     {
+        // 활성화된 잠자리를 InstanceID순으로 불러오기
         var dragonflies = GameObject.FindObjectsByType<DragonflyMove>(
                 FindObjectsInactive.Exclude,
                 FindObjectsSortMode.InstanceID
@@ -195,19 +199,23 @@ public class DragonflyMove : MonoBehaviour
         {
             for (int i = 0; i < dragonflies.Length; i++)
             {
-                if (i == 0)
+                if (i == 0 && !dragonflies[i].isPosition) // 첫번째이고 아직 설정이 되어있지 않으면
                 {
-                    idx = isRandom ? Random.Range(0, path.GetWayCount()) : NearPositionIndexSet();
+                    // 랜덤 or 멀리 있는 포인트
+                    idx = isRandom ? Random.Range(0, path.GetWayCount()) : FarPointIndexSet();
                 }
 
-                dragonflies[i].idx = idx;
+                if (!dragonflies[i].isPosition) // 미설정시 설정
+                {
+                    dragonflies[i].idx = idx; // 위치값
+                    dragonflies[i].isPosition = true; // 설정 완료
+                }
             }
-
-            isPosition = true;
         }
     }
 
-    private int NearPositionIndexSet()
+    // 멀리 있는 포인트 반환
+    private int FarPointIndexSet()
     {
         float dist = 0;
         int idx = 0;
@@ -224,7 +232,8 @@ public class DragonflyMove : MonoBehaviour
         return idx;
     }
 
-    private bool PositionSetComplete()
+    // 모든 잠자리가 위치 설정이 되었는지 체크
+    private bool PointSetComplete()
     {
         var dragonflies = GameObject.FindObjectsByType<DragonflyMove>(
                 FindObjectsInactive.Exclude,
@@ -240,5 +249,36 @@ public class DragonflyMove : MonoBehaviour
         }
 
         return true;
+    }
+
+    private void RespawnPosition(Vector3 point)
+    {
+        float radius = 0f;
+        float maxOffsetRange = 1f;
+        var col = GetComponent<CapsuleCollider>();
+        if (col != null)
+        {
+            radius = col.radius * 1.05f;
+        }
+
+        while(true)
+        {
+            Vector3 randomOffset = new Vector3(
+                    Random.Range(-maxOffsetRange, maxOffsetRange),
+                    -0.23f,
+                    Random.Range(-maxOffsetRange, maxOffsetRange)
+                );
+
+            Vector3 attemptedPosition = point + randomOffset;
+
+            // Physics.CheckSphere를 사용하여 겹침 확인
+            // CheckSphere가 false를 반환해야 겹침이 없는 것입니다.
+            if (!Physics.CheckSphere(attemptedPosition, radius, 1 << gameObject.layer))
+            {
+                // 겹침이 없다면 위치를 확정하고 루프 종료
+                transform.position = attemptedPosition;
+                break;
+            }
+        }
     }
 }
