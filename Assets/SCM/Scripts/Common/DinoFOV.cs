@@ -51,7 +51,6 @@ public class DinoFOV : MonoBehaviour
 
     IEnumerator LightSetup()
     {
-        print("∂Û¿Ã∆Æ");
         if (Random.value < 0.3f)
         {
             _light.enabled = false;

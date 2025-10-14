@@ -9,12 +9,12 @@ public class DragonflyMove : MonoBehaviour
     private readonly int hashTrace = Animator.StringToHash("isTrace");
     private readonly int hashAttack = Animator.StringToHash("isAttack");
     private readonly string torchTag = "TORCH";
-    private enum Status
+    public enum Status
     {
         None, TRACE, ATTACK, ESCAPE, RETURN
     }
 
-    [SerializeField] private Status status = Status.None;
+    public Status status = Status.None;
     private Transform playerTr;
     Animator animator;
     NavMeshAgent agent;
@@ -26,10 +26,11 @@ public class DragonflyMove : MonoBehaviour
     float escapeRange = 10f;
     float rotSpeed = 10f;
     bool isTorch = false;
-    int idx;
+    public int idx;
     float stoppingDistance = 3f;
+    public bool isPosition = false;
     PatrolPoints path;
-    void Start()
+    IEnumerator Start()
     {
         playerTr = GameObject.FindWithTag("Player").transform;
         animator = GetComponent<Animator>();
@@ -39,8 +40,12 @@ public class DragonflyMove : MonoBehaviour
 
         StartCoroutine(StatusCheck());
         StartCoroutine(FindPlayer());
-        idx = Random.Range(0, 3);
         path = GameObject.Find("DragonflyPoints").GetComponent<PatrolPoints>();
+        PositionIndexSet(true);
+        while(!PositionSetComplete())
+        {
+            yield return null;
+        }
         transform.position = path.GetWayPoint(idx);
     }
 
@@ -62,6 +67,7 @@ public class DragonflyMove : MonoBehaviour
                     StartCoroutine(OnEscape());
                     break;
                 case Status.RETURN:
+                    OnReturn();
                     if (agent.remainingDistance < 0.5f)
                     {
                         agent.stoppingDistance = stoppingDistance;
@@ -125,24 +131,23 @@ public class DragonflyMove : MonoBehaviour
     // 포인트로 복귀하는 로직
     void OnReturn()
     {
+        PositionIndexSet(false);
+
+        if(!PositionSetComplete())
+        {
+            return;
+        }
+
         animator.SetBool(hashAttack, false);
         animator.SetBool(hashTrace, true);
         agent.isStopped = false;
-        float dist = 0;
-
-        for (int i = 0; i < path.GetWayCount(); i++)
-        {
-            float temp = (path.GetWayPoint(i) - transform.position).sqrMagnitude;
-            if (temp > dist)
-            {
-                dist = temp;
-                idx = i;
-            }
-        }
 
         agent.stoppingDistance = 0f;
         agent.destination = path.FlattenY(path.GetWayPoint(idx));
     }
+
+    
+
     IEnumerator FindPlayer()
     {
         while(true)
@@ -174,8 +179,66 @@ public class DragonflyMove : MonoBehaviour
 
                 // 복귀
                 status = Status.RETURN;
-                OnReturn();
+                isPosition = false;
             }
         }
+    }
+
+    public void PositionIndexSet(bool isRandom)
+    {
+        var dragonflies = GameObject.FindObjectsByType<DragonflyMove>(
+                FindObjectsInactive.Exclude,
+                FindObjectsSortMode.InstanceID
+                );
+
+        if (dragonflies != null)
+        {
+            for (int i = 0; i < dragonflies.Length; i++)
+            {
+                if (i == 0)
+                {
+                    idx = isRandom ? Random.Range(0, path.GetWayCount()) : NearPositionIndexSet();
+                }
+
+                dragonflies[i].idx = idx;
+            }
+
+            isPosition = true;
+        }
+    }
+
+    private int NearPositionIndexSet()
+    {
+        float dist = 0;
+        int idx = 0;
+        for (int i = 0; i < path.GetWayCount(); i++)
+        {
+            float temp = (path.GetWayPoint(i) - transform.position).sqrMagnitude;
+            if (temp > dist)
+            {
+                dist = temp;
+                idx = i;
+            }
+        }
+
+        return idx;
+    }
+
+    private bool PositionSetComplete()
+    {
+        var dragonflies = GameObject.FindObjectsByType<DragonflyMove>(
+                FindObjectsInactive.Exclude,
+                FindObjectsSortMode.None
+                );
+
+        foreach (DragonflyMove dragonfly in dragonflies)
+        {
+            if (!dragonfly.isPosition)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

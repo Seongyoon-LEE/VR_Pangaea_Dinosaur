@@ -22,6 +22,22 @@ public class DragonflyDamage : MonoBehaviour
         {
             print("ÀÏÄ¡");
             OnDamage();
+
+            var dragonflies = GameObject.FindObjectsByType<DragonflyMove>(
+                FindObjectsInactive.Exclude,
+                FindObjectsSortMode.None
+                );
+
+            if (dragonflies != null)
+            {
+                foreach (var dragonfly in dragonflies)
+                {
+                    if (dragonfly != this)
+                    {
+                        dragonfly.status = DragonflyMove.Status.TRACE;
+                    }
+                }
+            }
         }
     }
 }
