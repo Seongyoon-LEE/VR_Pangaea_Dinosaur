@@ -7,11 +7,11 @@ using UnityEngine.AI;
 플레이어에게 닿을 시 공격하며 라이터를 들 시 멀리 도망간다.
 총을 맞을 시 3초간 기절한다. 
 */
-public class Dilopo : MonoBehaviour
+public class Dilopo : Dino
 {
     private Transform playerTr;
-    private float moveSpeed = 0;
-    private NavMeshAgent agent;
+    IEnumerator patrol;
+    IEnumerator chase;
 
     // Start is called before the first frame update
     void Start()
@@ -19,7 +19,9 @@ public class Dilopo : MonoBehaviour
         this.playerTr = GameObject.FindGameObjectWithTag("Player").transform;
         //this.moveSpeed = this.playerTr.GetComponent<Player>().moveSpeed / 2;
         this.agent = GetComponent<NavMeshAgent>();
-        this.agent.speed = moveSpeed;
+        this.agent.speed = speed;
+        this.patrol = this.PatrolRoutine();
+        this.chase = this.ChaseRoutine();
     }
     WaitForSeconds wsForMove = new WaitForSeconds(0.2f);
     WaitForSeconds wsForStun = new WaitForSeconds(3);
@@ -41,12 +43,33 @@ public class Dilopo : MonoBehaviour
                     yield return wsForMove;
                 }
             }
-            else // 촣맞아서 기절
+            else // 총맞아서 기절
             {
                 //안움직임
                 yield return wsForStun;
             }
             
         }
+    }
+
+    public override void Wait()
+    {
+        //배회
+        StopCoroutine(this.chase);
+        StartCoroutine(this.patrol);
+    }
+    IEnumerator PatrolRoutine()
+    {
+        yield return null; // 순찰 포인트 잡아서 순찰하도록
+    }
+    public override void Active()
+    {
+        //추적
+        StopCoroutine(this.patrol);
+        StartCoroutine(this.chase);
+    }
+    IEnumerator ChaseRoutine()
+    {
+        yield return null; // 타겟으로 잡힌 플레이어 따라가도록
     }
 }

@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using UnityEngine;
+using UnityEngine.AI;
 
-public class Raptor : MonoBehaviour
+public class Raptor : Dino
 {
     // 공격 레벨 일정 이상이 됐을 경우 즉시 공격 시작, 한번 공격 시작하면 공격을 취소하지 않음
     // 공격 시작시, 주변 랩터들 전부를 공격 시작 상태로 변경
@@ -19,6 +20,9 @@ public class Raptor : MonoBehaviour
     private int weaponLevel;
     private int hungryLevel;
 
+    IEnumerator patrol;
+    IEnumerator chase;
+
     private bool isAttacking = false;
     void Start()
     {
@@ -28,6 +32,11 @@ public class Raptor : MonoBehaviour
         StartCoroutine(WeaponCheckRoutine());
         StartCoroutine(HungryRoutine());
         StartCoroutine(AttackStartRoutine());
+
+        this.agent = GetComponent<NavMeshAgent>();
+        this.agent.speed = speed;
+        this.patrol = this.PatrolRoutine();
+        this.chase = this.ChaseRoutine();
     }
 
     WaitForSeconds ws = new WaitForSeconds(1);
@@ -114,5 +123,27 @@ public class Raptor : MonoBehaviour
             }
         }
         //공격 로직
+        Active();
+    }
+
+    public override void Wait()
+    {
+        //배회
+        StopCoroutine(this.chase);
+        StartCoroutine(this.patrol);
+    }
+    IEnumerator PatrolRoutine()
+    {
+        yield return null; // 순찰 포인트 잡아서 순찰하도록
+    }
+    public override void Active()
+    {
+        //추적
+        StopCoroutine(this.patrol);
+        StartCoroutine(this.chase);
+    }
+    IEnumerator ChaseRoutine()
+    {
+        yield return null; // 타겟으로 잡힌 플레이어 따라가도록
     }
 }
