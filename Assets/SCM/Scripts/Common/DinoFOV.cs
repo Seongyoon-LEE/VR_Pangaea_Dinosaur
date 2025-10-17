@@ -22,7 +22,7 @@ public class DinoFOV : MonoBehaviour
         ws = new WaitForSeconds(0.2f);
         lightSeconds = new WaitForSeconds(3f);
         _light = GetComponentInChildren<Light>();
-
+        print(gameObject.name);
         StartCoroutine(FindTargetDelay());
     }
 
@@ -39,11 +39,11 @@ public class DinoFOV : MonoBehaviour
                 lightSetupCoroutine = StartCoroutine(LightSetup());
             }
 
-
             if (!_light.enabled) continue;
 
-            if (isPlayer()) // 플레이어 인식
+            if (IsPlayer()) // 플레이어 인식
             {
+                print("확인");
                 OnPlayerRecognized();
             }
         }
@@ -66,16 +66,16 @@ public class DinoFOV : MonoBehaviour
         lightSetupCoroutine = null;
     }
 
-    private bool isPlayer()
+    private bool IsPlayer()
     {
         float viewRadius = _light.range;
         float viewAngle = _light.spotAngle;
 
         Collider[] colliders = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
-
+        print(colliders.Length);
         if (colliders.Length == 0) return false;
 
-
+        
         foreach (Collider target in colliders)
         {
             Transform targetTr = target.transform;
@@ -83,11 +83,14 @@ public class DinoFOV : MonoBehaviour
             if (targetTr.CompareTag(playerTag))
                 playerTr = targetTr;
 
-            Vector3 directionToTarget = (targetTr.position - transform.position).normalized;
-
+            Vector3 directionToTarget = (targetTr.position - _light.transform.position).normalized;
+            print(directionToTarget);
+            print(Vector3.Angle(_light.transform.forward, directionToTarget));
+            print(viewAngle / 2);
             // 시야각 확인
             if (Vector3.Angle(_light.transform.forward, directionToTarget) < viewAngle / 2)
             {
+                
                 float distanceToTarget = Vector3.Distance(transform.position, targetTr.position);
 
                 // Raycast: 장애물에 가려졌는지 확인
