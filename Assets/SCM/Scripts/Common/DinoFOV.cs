@@ -72,7 +72,6 @@ public class DinoFOV : MonoBehaviour
         float viewAngle = _light.spotAngle;
 
         Collider[] colliders = Physics.OverlapSphere(transform.position, viewRadius, targetMask);
-        print(colliders.Length);
         if (colliders.Length == 0) return false;
 
         
@@ -84,13 +83,10 @@ public class DinoFOV : MonoBehaviour
                 playerTr = targetTr;
 
             Vector3 directionToTarget = (targetTr.position - _light.transform.position).normalized;
-            print(directionToTarget);
-            print(Vector3.Angle(_light.transform.forward, directionToTarget));
-            print(viewAngle / 2);
+
             // 시야각 확인
             if (Vector3.Angle(_light.transform.forward, directionToTarget) < viewAngle / 2)
             {
-                
                 float distanceToTarget = Vector3.Distance(transform.position, targetTr.position);
 
                 // Raycast: 장애물에 가려졌는지 확인

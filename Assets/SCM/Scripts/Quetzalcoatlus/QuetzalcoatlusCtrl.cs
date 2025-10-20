@@ -35,10 +35,10 @@ public class QuetzalcoatlusCtrl : MonoBehaviour
         switch (status)
         {
             case Status.PATROL:
-                //OnPatrol();
+                OnPatrol();
                 break;
             case Status.ATTACK:
-                //OnAttack();
+                OnAttack();
                 break;
         }
     }
