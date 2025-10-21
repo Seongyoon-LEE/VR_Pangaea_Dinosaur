@@ -15,11 +15,11 @@ public class ZippoController : MonoBehaviour
     public InputActionReference useAction;
 
     // "IsOpen"이라는 애니메이터 파라미터 이름을 숫자로 바꿔서 기억해두면 성능에 좋아!
-    private readonly int isOpenHash = Animator.StringToHash("IsOpen");
+    private readonly int isOpenHash = Animator.StringToHash("IsOpened");
 
     // 현재 라이터가 켜져 있는지 기억하는 변수
     private bool isOpen = false;
-
+    bool isBusy = false;
     void Awake()
     {
         // 만약 인스펙터에서 연결 안 해줬으면, 스스로 찾아보게!
@@ -45,18 +45,18 @@ public class ZippoController : MonoBehaviour
     // 오른손 트리거를 눌렀을 때 호출될 함수
     private void OnUsePressed(InputAction.CallbackContext context)
     {
+        if (isBusy)
+        {
+            print("애니메이션 재생중 입력 무시");
+            return;
+        }
+        isBusy = true;
         // 현재 상태를 반전시킨다 (켜져있었으면 끄고, 꺼져있었으면 켠다)
         isOpen = !isOpen;
 
         // 애니메이터에게 현재 상태를 알려줘서 알맞은 애니메이션을 재생하게 한다
         animator.SetBool(isOpenHash, isOpen);
 
-        // 만약 라이터를 '닫는' 상황이라면?
-        // 애니메이션 이벤트까지 기다릴 필요 없이 즉시 불을 끈다!
-        if (!isOpen && flameLight != null)
-        {
-            flameLight.enabled = false;
-        }
     }
 
     // ? 애니메이션 이벤트가 호출할 마법의 함수! ?
@@ -68,5 +68,18 @@ public class ZippoController : MonoBehaviour
             flameLight.enabled = true;
             Debug.Log("불꽃 점화!");
         }
+    }
+    public void TurnOffFlame()
+    {
+        if(flameLight != null)
+        {
+            flameLight.enabled = false;
+            Debug.Log("불꽃 소멸!");
+        }
+    }
+    public void OnAnimationComplete()
+    {
+        isBusy = false;
+        Debug.Log("애니메이션 완료!");
     }
 }

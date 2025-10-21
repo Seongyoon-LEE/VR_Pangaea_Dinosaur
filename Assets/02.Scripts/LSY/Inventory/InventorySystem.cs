@@ -21,6 +21,9 @@ public class InventorySystem : MonoBehaviour
     int currentEquippedItemIndex = -1; // 현재 장착된 아이템 인덱스
     RevolverAttach curRevolverAttach; // 현재 장착된 리볼버 스크립트
 
+    public GameObject leftHandModel; // 왼손 모델
+    public GameObject rightHandModel; // 오른손 모델
+
     private void Awake()
     {
         if(Instance == null) Instance = this;
@@ -62,6 +65,11 @@ public class InventorySystem : MonoBehaviour
         // 이전에 들고 있던 아이템이 있다면 집어넣기
         UnequipCurrentItem();
 
+        if (leftHandModel != null)
+            leftHandModel.SetActive(false); // 손 모델 숨기기
+        if(rightHandModel != null)
+            rightHandModel.SetActive(false); // 손 모델 숨기기
+
         GameObject itemToEquip = items[itemIndex];
         currentEquippedItemIndex = itemIndex;
 
@@ -89,6 +97,11 @@ public class InventorySystem : MonoBehaviour
 
             items[currentEquippedItemIndex].SetActive(false);
             currentEquippedItemIndex = -1;
+
+            if (leftHandModel != null)
+                leftHandModel.SetActive(true); // 손 모델 숨기기
+            if (rightHandModel != null)
+                rightHandModel.SetActive(true); // 손 모델 숨기기
         }
     }
 }
