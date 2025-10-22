@@ -16,9 +16,13 @@ public class InventorySystem : MonoBehaviour
     [Header("참조")]
     public InventoryUIManager uiManager; // 인벤토리 UI 매니저
 
-    public Transform handTransform; // 아이템을 들 위치
+    public Transform handTransform; // 아이템을 들 위치    
 
     int currentEquippedItemIndex = -1; // 현재 장착된 아이템 인덱스
+    RevolverAttach curRevolverAttach; // 현재 장착된 리볼버 스크립트
+
+    public GameObject leftHandModel; // 왼손 모델
+    public GameObject rightHandModel; // 오른손 모델
 
     private void Awake()
     {
@@ -61,31 +65,43 @@ public class InventorySystem : MonoBehaviour
         // 이전에 들고 있던 아이템이 있다면 집어넣기
         UnequipCurrentItem();
 
+        if (leftHandModel != null)
+            leftHandModel.SetActive(false); // 손 모델 숨기기
+        if(rightHandModel != null)
+            rightHandModel.SetActive(false); // 손 모델 숨기기
+
         GameObject itemToEquip = items[itemIndex];
         currentEquippedItemIndex = itemIndex;
 
-        itemToEquip.SetActive(true); // 아이템 활성화
-        // 아이템에 손잡이(GrabbleItem)이 붙어있는지 확인
-        GrabbableItem grabbable = itemToEquip.GetComponent<GrabbableItem>();
-        if (grabbable != null && grabbable.grabPoint != null)
-        {
-            // 손잡이가 있으면, 아이템을 손의 자식으로 만듬
-            itemToEquip.transform.SetParent(handTransform);
-            // 아이템의 손잡이와 실제 손의 위치/회전 차이만큼 아이템을 역으로 이동/회전 시켜
-            // 정확히 손잡이와 손이 일치하게 만든다
-            itemToEquip.transform.localPosition = -grabbable.grabPoint.localPosition;
-            itemToEquip.transform.localRotation = Quaternion.Inverse(grabbable.grabPoint.localRotation);
-        }
+        // 아이템을 활성화!
+        itemToEquip.SetActive(true);
 
+        // 아이템에 붙어있는 RevolverAttach 스크립트를 찾아서 Attach 함수를 호출!
+        var attachable = itemToEquip.GetComponent<RevolverAttach>();
+        if (attachable != null)
+        {
+            attachable.Attach();
+        }
     }
     // 현재 들고 있는 아이템을 집어넣는 기능
     void UnequipCurrentItem()
     {
-        if (currentEquippedItemIndex != -1) // -1이 아니면 들고 있는 아이템이 있다는 뜻
+        if (currentEquippedItemIndex != -1)
         {
+            // 내려놓을 아이템에서 RevolverAttach 스크립트를 찾아서 Detach 함수를 호출!
+            var attachable = items[currentEquippedItemIndex].GetComponent<RevolverAttach>();
+            if (attachable != null)
+            {
+                attachable.Detach();
+            }
+
             items[currentEquippedItemIndex].SetActive(false);
-            Debug.Log($"아이템 {currentEquippedItemIndex} 집어넣음");
             currentEquippedItemIndex = -1;
+
+            if (leftHandModel != null)
+                leftHandModel.SetActive(true); // 손 모델 숨기기
+            if (rightHandModel != null)
+                rightHandModel.SetActive(true); // 손 모델 숨기기
         }
     }
 }

@@ -17,10 +17,8 @@ public class DragonflyDamage : MonoBehaviour
 
     private void OnCollisionEnter(Collision col)
     {
-        print("진입");
         if (col.gameObject.CompareTag(bulletTag))
         {
-            print("일치");
             OnDamage();
 
             var dragonflies = GameObject.FindObjectsByType<DragonflyMove>(
@@ -34,6 +32,7 @@ public class DragonflyDamage : MonoBehaviour
                 {
                     if (dragonfly != this)
                     {
+                        dragonfly.isChasingPlayer = true;
                         dragonfly.status = DragonflyMove.Status.TRACE;
                     }
                 }

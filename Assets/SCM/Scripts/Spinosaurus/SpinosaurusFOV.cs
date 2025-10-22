@@ -14,5 +14,6 @@ public class SpinosaurusFOV : DinoFOV
     protected override void OnPlayerRecognized()
     {
         base.OnPlayerRecognized();
+        spinosaurus.FindOut(playerTr);
     }
 }
