@@ -6,19 +6,20 @@ using UnityEngine.AI;
 public class CryingAngel : Dino
 {
     Renderer render;
-    public float sensorDist = 100;
-    IEnumerator patrol;
-    IEnumerator chase;
+    
+
     private void Start()
     { 
         this.render = GetComponent<Renderer>();
         this.agent = GetComponent<NavMeshAgent>();
         this.agent.speed = speed;
+        this.target = null;
         this.patrol = this.PatrolRoutine();
         this.chase = this.ChaseRoutine();
+        this.statusCheck = this.StatusRoutine();
     }
     
-    WaitForSeconds wsForMove = new WaitForSeconds(0.2f);
+    
     IEnumerator MoveRoutine()
     {
         while (true)
@@ -38,18 +39,19 @@ public class CryingAngel : Dino
             yield return wsForMove;
         }
     }
-    IEnumerator StatusRoutine()
+    IEnumerator StatusRoutine() // 활성화로만 변화
     {
-        eStatus tempStatus = this.Status;
+        eStatus tempStatus = eStatus.Wait;
         while (true)
         {
             // 상태변화 조건 : 일정 범위 내에 사람이 있는가(벽 무시)
             Collider[] targetsInViewRadius = Physics.OverlapSphere(transform.position, sensorDist, LayerMask.GetMask(this.playerStr));
             if (targetsInViewRadius.Length > 0)
             {
+                this.target = targetsInViewRadius[0].transform;
                 tempStatus = eStatus.Active;
             }
-                if (this.Status != tempStatus) // 상태가 변화함
+            if (this.Status != tempStatus) // 상태가 변화함
             {
                 this.Status = tempStatus;
             }
@@ -59,20 +61,15 @@ public class CryingAngel : Dino
     {
         //배회
         StopCoroutine(this.chase);
+        StartCoroutine(this.statusCheck);
         StartCoroutine(this.patrol);
     }
-    IEnumerator PatrolRoutine()
-    {
-        yield return null; // 순찰 포인트 잡아서 순찰하도록
-    }
+    
     public override void Active()
     {
         //추적
         StopCoroutine(this.patrol);
+        StopCoroutine(this.statusCheck);
         StartCoroutine(this.chase);
-    }
-    IEnumerator ChaseRoutine()
-    {
-        yield return null; // 타겟으로 잡힌 플레이어 따라가도록
     }
 }

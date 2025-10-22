@@ -21,7 +21,7 @@ public class Parasau : Dino
                 bool check = false;
                 foreach(Collider target in targetsInViewRadius)
                 {
-                    //target의 상태값이 뛰는거라면
+                    //target의 상태값이 뛰는거라면(플레이어 만들어진거 보고 제작)
                     if (true)
                     {
                         check = true;
