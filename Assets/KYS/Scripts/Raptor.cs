@@ -2,8 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using UnityEngine;
+using UnityEngine.AI;
+using static UnityEngine.GraphicsBuffer;
 
-public class Raptor : MonoBehaviour
+public class Raptor : Dino
 {
     // 공격 레벨 일정 이상이 됐을 경우 즉시 공격 시작, 한번 공격 시작하면 공격을 취소하지 않음
     // 공격 시작시, 주변 랩터들 전부를 공격 시작 상태로 변경
@@ -14,7 +16,6 @@ public class Raptor : MonoBehaviour
     // 4. 포만감이 100에서 시작해서 초당 1씩 감소한다, 이에 따른 공격 레벨 : -((현재 포만감) - 70)
     private int seenLevel;
     private int aroundLevel;
-    public float aroundCheckRadius = 30; // 주변 감지 거리
     private LayerMask raptorLayer;
     private int weaponLevel;
     private int hungryLevel;
@@ -28,6 +29,11 @@ public class Raptor : MonoBehaviour
         StartCoroutine(WeaponCheckRoutine());
         StartCoroutine(HungryRoutine());
         StartCoroutine(AttackStartRoutine());
+
+        this.agent = GetComponent<NavMeshAgent>();
+        this.agent.speed = speed;
+        this.patrol = this.PatrolRoutine();
+        this.chase = this.ChaseRoutine();
     }
 
     WaitForSeconds ws = new WaitForSeconds(1);
@@ -51,7 +57,7 @@ public class Raptor : MonoBehaviour
     {
         while (!isAttacking)
         {
-            if (Physics.OverlapSphere(this.transform.position, this.aroundCheckRadius,this.raptorLayer).Length > 3) // 랩터만 체크
+            if (Physics.OverlapSphere(this.transform.position, this.sensorDist,this.raptorLayer).Length > 3) // 랩터만 체크
             {
                 aroundLevel = 30;
             }
@@ -105,7 +111,7 @@ public class Raptor : MonoBehaviour
         this.isAttacking = true;
         StopAllCoroutines();
         Debug.Log("공격 시작");
-        foreach(var raptor in Physics.OverlapSphere(this.transform.position, this.aroundCheckRadius, this.raptorLayer))
+        foreach(var raptor in Physics.OverlapSphere(this.transform.position, this.sensorDist, this.raptorLayer))
         {
             var rap = raptor.GetComponent<Raptor>();
             if (!rap.isAttacking)
@@ -114,5 +120,80 @@ public class Raptor : MonoBehaviour
             }
         }
         //공격 로직
+        Active();
+    }
+
+    public override void Wait()
+    {
+        //배회
+        StopCoroutine(this.chase);
+        StartCoroutine(this.patrol);
+    }
+
+    public override void Active()
+    {
+        //추적
+        StopCoroutine(this.patrol);
+        StartCoroutine(this.chase);
+    }
+
+    new IEnumerator ChaseRoutine() // 렙터는 다시 비활성화로 돌아가지 않음
+    {
+        bool watchPlayerHide = false;
+        // 타겟으로 잡힌 플레이어 따라가도록
+        while (true)
+        {
+            /*
+             0.2초마다 시야 체크 -> 시야에 잡혀있다면 agent 목적지 업데이트
+            -> 목적지에 도달하고나서 시야에 안잡힌다면 다시 순찰
+            만약 시야에 잡혀있는 상태에서 숨는 행위를 한다면 사망
+             */
+            // 시야 체크법, agent의 목적지쪽에 ray를 쏴서, 사이에 장애물이 없는지를 체크
+            Vector3 dirToTarget = (target.position - transform.position).normalized;
+            float distToTarget = Vector3.Distance(transform.position, target.position);
+
+            // 1. 공격 가능 거리안에 있는지
+            if (distToTarget < 0.5f)//0.5는 임시
+            {
+                //공격(플레이어 만들어진거 보고 제작)
+                yield return wsForAttack;
+            }
+            // 2. 시야 거리 안에 있는지
+            if (Physics.Raycast(transform.position, dirToTarget, out RaycastHit hit, sensorDist))
+            {
+                // Ray가 맞은 것이 타겟인지 확인
+                if (((1 << hit.collider.gameObject.layer) & (watchPlayerHide ? LayerMask.GetMask(this.playerStr) : LayerMask.GetMask(this.playerStr, this.playerHideStr))) != 0)
+                {
+                    // 타겟이 직접 보임
+                    this.agent.destination = this.target.position;
+                    //타겟이 숨는 중인지 확인(플레이어 만들어진거 보고 제작)
+                    //숨는 중이라면 watchPlayerHide를 true로 변경
+                    if (this.target.GetComponent<KYS_Player_Status>().status == ePlayerStatus.TryHide)
+                    {
+                        watchPlayerHide = true;
+                    }
+                    else if (this.target.gameObject.layer == LayerMask.GetMask(this.playerStr))
+                    {
+                        watchPlayerHide = false;
+                    }
+
+                    yield return wsForMove;
+                    continue;
+                }
+                /*else
+                {
+                    // 중간에 장애물에 막힘
+                }*/
+            }
+            if (Vector3.Distance(this.transform.position, this.agent.destination) < 0.5f)
+            {
+                //목적지에 도착함(마지막으로 본 장소)
+                //위에서 시야에 보이는지 이미 체크함 / 보였다면 continue해서 코루틴 처음으로 감
+                //즉 여기에 왔으면 안보이고, 목적지에도 도착한거니 다시 순찰
+                this.target = null;
+                this.Status = eStatus.Wait;
+            }
+
+        }
     }
 }
