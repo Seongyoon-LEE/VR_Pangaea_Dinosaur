@@ -51,16 +51,20 @@ public class QuetzalcoatlusCtrl : MonoBehaviour
             animator.SetFloat(hashUpDown, 0.5f);
         }
 
-        curTime += Time.deltaTime;
-
-        if (curTime > dampTime)
+        if (status == Status.PATROL)
         {
-            updownValue = Random.value;
-            leftrightValue = Random.value;
-            curTime = 0f;
+            curTime += Time.deltaTime;
+
+            if (curTime > dampTime)
+            {
+                updownValue = Random.value;
+                leftrightValue = Random.value;
+                curTime = 0f;
+            }
+            animator.SetFloat(hashLeftRight, leftrightValue, dampTime, Time.deltaTime);
+            animator.SetFloat(hashUpDown, updownValue, dampTime, Time.deltaTime);
         }
-        animator.SetFloat(hashLeftRight, leftrightValue, dampTime, Time.deltaTime);
-        animator.SetFloat(hashUpDown, updownValue, dampTime, Time.deltaTime);
+        
     }
     void OnPatrol()
     {

@@ -32,6 +32,7 @@ public class DragonflyDamage : MonoBehaviour
                 {
                     if (dragonfly != this)
                     {
+                        dragonfly.isChasingPlayer = true;
                         dragonfly.status = DragonflyMove.Status.TRACE;
                     }
                 }

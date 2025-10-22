@@ -30,6 +30,7 @@ public class DragonflyMove : MonoBehaviour
     public int idx;
     float stoppingDistance = 3f;
     public bool isPosition = false;
+    public bool isChasingPlayer = false;
     PatrolPoints path;
     IEnumerator Start()
     {
@@ -78,6 +79,7 @@ public class DragonflyMove : MonoBehaviour
                     }
                     break;
                 default:
+                    OnIdle();
                     break;
             }
         }
@@ -90,8 +92,17 @@ public class DragonflyMove : MonoBehaviour
             isTorch = true;
         }
     }
+
+    void OnIdle()
+    {
+        animator.SetBool(hashTrace, false);
+        animator.SetBool(hashAttack, false);
+        agent.isStopped = true;
+    }
+
     void OnTrace()
     {
+        print("추격");
         animator.SetBool(hashTrace, true);
         animator.SetBool(hashAttack, false);
         agent.isStopped = false;
@@ -100,6 +111,7 @@ public class DragonflyMove : MonoBehaviour
 
     void OnAttack()
     {
+        print("공격");
         animator.SetBool(hashAttack, true);
         agent.isStopped = true;
 
@@ -163,6 +175,7 @@ public class DragonflyMove : MonoBehaviour
             if (dist < attackRange)
             {
                 status = Status.ATTACK;
+                isChasingPlayer = false;
             }
             else if (dist < traceRange)
             {
@@ -170,6 +183,7 @@ public class DragonflyMove : MonoBehaviour
             }
             else
             {
+                if (isChasingPlayer) continue;
                 status = Status.None;
             }
 

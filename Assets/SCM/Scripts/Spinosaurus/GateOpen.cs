@@ -7,33 +7,32 @@ public class GateOpen : MonoBehaviour
     Animator animator;
     WaitForSeconds openSeconds;
     WaitForSeconds ws;
-    bool isOpen = false;
     SpinosaurusCtrl spinosaurus;
+    Vector3 initPosition;
     float curTime = 0f;
     void Start()
     {
         animator = GetComponent<Animator>();
         openSeconds = new WaitForSeconds(180f);
         ws = new WaitForSeconds(0.3f);
-        spinosaurus = GetComponent<SpinosaurusCtrl>(); // 위치 변경
+        spinosaurus = GetComponent<SpinosaurusCtrl>();
+        initPosition = transform.position;
         StartCoroutine(GateOepn());
     }
 
     IEnumerator GateOepn()
     {
-        while(true)
+        yield return openSeconds;
+
+        if (Random.value >= 0.3f)
         {
-            yield return openSeconds;
-
-            if (isOpen) continue;
-            if (Random.value <= 0.3f) continue;
-
-            isOpen = true;
-            // 오픈 애니메이션
-            // 사이렌 소리
-            // 스피노 등장
-            StartCoroutine(RiseDinoWater());
+            StartCoroutine(GateOepn());
+            yield break;
         }
+        // 오픈 애니메이션
+        // 사이렌 소리
+        // 스피노 등장
+        StartCoroutine(RiseDinoWater());
     }
 
     IEnumerator RiseDinoWater()
@@ -49,15 +48,17 @@ public class GateOpen : MonoBehaviour
             if (curTime - Time.deltaTime >= 30f)
             {
                 spinosaurus.DinoAppeared();
+                yield break;
             }
         }
     }
 
     public void GateClose()
     {
-        isOpen = false;
         curTime = 0f;
-        // 스피노 위치 초기화
+        StopAllCoroutines();
+        StartCoroutine(GateOepn());
+        transform.position = initPosition;
         // 철창 닫는 애니메이션
         // 사이렌 종료
     }
