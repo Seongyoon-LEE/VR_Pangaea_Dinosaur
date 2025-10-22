@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.UIElements;
 
-public class SpinosaurusCtrl : MonoBehaviour
+public class SpinosaurusCtrl : MonoBehaviour, IDinoCtrl
 {
     private readonly int hashWalk = Animator.StringToHash("Walk");
     private readonly int hashAttack = Animator.StringToHash("IsAttack");
@@ -32,12 +31,12 @@ public class SpinosaurusCtrl : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         ws = new WaitForSeconds(0.3f);
         path = GameObject.Find("Points").GetComponent<PatrolPoints>(); // 이름 변경
-        StartCoroutine(DinoAppearedCoroutine()); // 호출 위치 나중에 변경
+        //StartCoroutine(UpdateCurrentStatus()); // 호출 위치 나중에 변경
     }
-   
-    IEnumerator DinoAppearedCoroutine()
+
+    public IEnumerator UpdateCurrentStatus()
     {
-        while(true)
+        while (true)
         {
             yield return ws;
 
@@ -53,6 +52,7 @@ public class SpinosaurusCtrl : MonoBehaviour
                     OnAttack();
                     break;
                 default:
+                    OnIdle();
                     break;
             }
         }
@@ -60,7 +60,7 @@ public class SpinosaurusCtrl : MonoBehaviour
 
     public void DinoAppeared()
     {
-        StartCoroutine(DinoAppearedCoroutine());
+        StartCoroutine(UpdateCurrentStatus());
         status = Status.PATROL;
     }
     public void FindOut(Transform tr)
@@ -71,7 +71,7 @@ public class SpinosaurusCtrl : MonoBehaviour
         agent.destination = playerTr.position;
     }
 
-    void OnPatrol()
+    public void OnPatrol()
     {
         agent.isStopped = false;
         agent.destination = path.GetWayPoint(idx);
@@ -82,7 +82,7 @@ public class SpinosaurusCtrl : MonoBehaviour
         }
     }
 
-    void OnTrace()
+    public void OnTrace()
     {
         if (Vector3.Distance(path.FlattenY(playerTr.position), path.FlattenY(transform.position)) < 5f)
         {
@@ -97,7 +97,7 @@ public class SpinosaurusCtrl : MonoBehaviour
         agent.destination = playerTr.position;
     }
 
-    void OnAttack()
+    public void OnAttack()
     {
         if (playerTr == null) return;
 
@@ -112,5 +112,10 @@ public class SpinosaurusCtrl : MonoBehaviour
         // 공격시 즉사
         // 사망 처리
         // 범위에서 벗어났을 때 추격 구현 필요X
+    }
+
+    public void OnIdle()
+    {
+        
     }
 }

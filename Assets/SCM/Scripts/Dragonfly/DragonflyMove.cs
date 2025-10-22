@@ -5,7 +5,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class DragonflyMove : MonoBehaviour
+public class DragonflyMove : MonoBehaviour, IDinoCtrl
 {
     private readonly int hashTrace = Animator.StringToHash("isTrace");
     private readonly int hashAttack = Animator.StringToHash("isAttack");
@@ -23,26 +23,32 @@ public class DragonflyMove : MonoBehaviour
     WaitForSeconds escapeSeconds;
 
     float traceRange = 100f;
-    [SerializeField] float attackRange = 10f;
-    float escapeRange = 10f;
-    float rotSpeed = 10f;
+    float attackRange = 4f;
+    float escapeRange = 90f;
+    float scatterRange = 5f;
+    float rotSpeed = 10;
+    float attackSpeed = 3f;
+    float nextAttackTime = 0f;
     bool isTorch = false;
     public int idx;
     float stoppingDistance = 3f;
     public bool isPosition = false;
     public bool isChasingPlayer = false;
+    bool isFocus = false;
     PatrolPoints path;
     IEnumerator Start()
     {
         playerTr = GameObject.FindWithTag("Player").transform;
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
-        ws = new WaitForSeconds(0.5f);
+        ws = new WaitForSeconds(0.1f);
         escapeSeconds = new WaitForSeconds(3f);
 
-        StartCoroutine(StatusCheck());
+        StartCoroutine(UpdateCurrentStatus());
         StartCoroutine(FindPlayer());
         path = GameObject.Find("DragonflyPoints").GetComponent<PatrolPoints>();
+
+        agent.avoidancePriority = Random.Range(50, 80);
         PointIndexSet(true);
         while(!PointSetComplete())
         {
@@ -52,7 +58,17 @@ public class DragonflyMove : MonoBehaviour
         //transform.position = path.GetWayPoint(idx);
     }
 
-    IEnumerator StatusCheck()
+    private void Update()
+    {
+        if (isFocus)
+        {
+            Vector3 taget = (playerTr.position - transform.position).normalized;
+
+            Quaternion rot = Quaternion.LookRotation(taget);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * rotSpeed);
+        }
+    }
+    public IEnumerator UpdateCurrentStatus()
     {
         while (true)
         {
@@ -93,37 +109,59 @@ public class DragonflyMove : MonoBehaviour
         }
     }
 
-    void OnIdle()
+    public void OnIdle()
     {
+        isFocus = false;
         animator.SetBool(hashTrace, false);
         animator.SetBool(hashAttack, false);
         agent.isStopped = true;
     }
 
-    void OnTrace()
+    public void OnTrace()
     {
         print("추격");
+        isFocus = true;
         animator.SetBool(hashTrace, true);
         animator.SetBool(hashAttack, false);
+
         agent.isStopped = false;
-        agent.destination = playerTr.position;
+        if (agent.velocity.sqrMagnitude <= 0.1f)
+        {
+            // 플레이어 주변의 랜덤한 목표 지점 계산
+            Vector3 randomPoint = playerTr.position + Random.insideUnitSphere * scatterRange;
+            NavMeshHit hit;
+
+            // NavMesh 위에서 유효한 지점 찾기
+            if (NavMesh.SamplePosition(randomPoint, out hit, scatterRange, NavMesh.AllAreas))
+            {
+                // 새로운 목표 지점으로 설정하여 몬스터 사이를 비집고 들어가거나 맴돌도록 유도
+                agent.SetDestination(hit.position);
+            }
+        }
+        // Case 2: 플레이어에게 접근 중일 때
+        else
+        {
+            // 플레이어의 현재 위치를 목표로 설정
+            agent.SetDestination(playerTr.position);
+        }
+
+        //agent.destination = playerTr.position;
     }
 
-    void OnAttack()
+    public void OnAttack()
     {
-        print("공격");
+        if (Time.time < nextAttackTime) return;
+
         animator.SetBool(hashAttack, true);
         agent.isStopped = true;
 
-        Vector3 taget = (playerTr.position - transform.position).normalized;
-
-        Quaternion rot = Quaternion.LookRotation(taget);
-        transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * rotSpeed);
+        nextAttackTime = Time.time + attackSpeed;
     }
 
     // 플레이어 반대 방향으로 도망가는 로직
     IEnumerator OnEscape()
     {
+        isFocus = false;
         animator.SetBool(hashAttack, false);
         animator.SetBool(hashTrace, true);
         agent.isStopped = false;
@@ -146,8 +184,8 @@ public class DragonflyMove : MonoBehaviour
     void OnReturn()
     {
         PointIndexSet(false);
-
-        if(!PointSetComplete())
+        isFocus = false;
+        if (!PointSetComplete())
         {
             return;
         }
@@ -295,4 +333,16 @@ public class DragonflyMove : MonoBehaviour
             }
         }
     }
+
+    public void FindOut(Transform tr)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void OnPatrol()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    
 }

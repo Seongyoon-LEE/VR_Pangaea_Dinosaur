@@ -1,0 +1,189 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+
+public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
+{
+    private readonly string transparentLayer = "Transparent";
+    private readonly string dinoLayer = "DINO";
+    private enum Status
+    {
+        None, PATROL, TRACE, ATTACK
+    }
+    [SerializeField]
+    private Status status = Status.PATROL;
+
+    Animator animator;
+    NavMeshAgent agent;
+    WaitForSeconds ws;
+    private Transform playerTr;
+    PatrolPoints path;
+    int idx = 0;
+    public float runSpeed = 5f;
+    float rotSpeed = 10f;
+    Light _light;
+    public Renderer[] allRenderers;
+    float fadeDuration = 3f;
+    bool isFade = false;
+
+    Coroutine fadeCoroutine;
+    void Start()
+    {
+        animator = GetComponent<Animator>();
+        agent = GetComponent<NavMeshAgent>();
+        ws = new WaitForSeconds(0.3f);
+        path = GameObject.Find("Points").GetComponent<PatrolPoints>();
+        allRenderers = GetComponentsInChildren<Renderer>();
+        _light = GetComponentInChildren<Light>();
+        StartCoroutine(UpdateCurrentStatus());
+        SetAlpha(0);
+    }
+
+    public void FindOut(Transform tr)
+    {
+        status = Status.TRACE;
+        playerTr = tr;
+        FadeIn();
+    }
+    public IEnumerator UpdateCurrentStatus()
+    {
+        while (true)
+        {
+            yield return ws;
+
+            if (isFade)
+                status = Status.None;
+
+            switch (status)
+            {
+                case Status.PATROL:
+                    OnPatrol();
+                    break;
+                case Status.TRACE:
+                    OnTrace();
+                    break;
+                case Status.ATTACK:
+                    OnAttack();
+                    break;
+                default:
+                    OnIdle();
+                    break;
+            }
+        }
+    }
+
+    public void OnPatrol()
+    {
+        agent.isStopped = false;
+        agent.destination = path.GetWayPoint(idx);
+        //animator.SetFloat(hashWalk, 0.5f);
+        if (Vector3.Distance(path.FlattenY(path.GetWayPoint(idx)), path.FlattenY(transform.position)) < 5f)
+        {
+            idx = path.CurrentWayPoint(idx);
+        }
+    }
+
+    public void OnTrace()
+    {
+        if (Vector3.Distance(path.FlattenY(playerTr.position), path.FlattenY(transform.position)) < 5f)
+        {
+            status = Status.ATTACK;
+            return;
+        }
+
+        //animator.SetFloat(hashWalk, 1f);
+        //animator.SetBool(hashAttack, false);
+        agent.isStopped = false;
+        agent.speed = runSpeed;
+        agent.destination = playerTr.position;
+    }
+
+    public void OnAttack()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void OnIdle()
+    {
+        agent.isStopped = true;
+    }
+
+    private void SetLayerRecursive(GameObject obj, int newLayer)
+    {
+        obj.layer = newLayer;
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursive(child.gameObject, newLayer);
+        }
+    }
+
+    private void SetAlpha(float alpha)
+    {
+        _light.intensity = alpha > 0 ? 1000*alpha : 0;
+
+        foreach (Renderer renderer in allRenderers)
+        {
+            foreach (Material m in renderer.materials)
+            {
+                Color color = m.color;
+                color.a = alpha;
+                m.color = color;
+            }
+        }
+    }
+
+    void FadeIn()
+    {
+        if (fadeCoroutine != null) return;
+        fadeCoroutine = StartCoroutine(FadeInCoroutine());
+    }
+
+    void FadeOut()
+    {
+        if (fadeCoroutine != null) return;
+        fadeCoroutine = StartCoroutine(FadeOutCoroutine());
+    }
+    IEnumerator FadeInCoroutine()
+    {
+        isFade = true;
+        SetLayerRecursive(gameObject, 0);
+
+        float timeElapsed = 0f;
+
+        while (timeElapsed < fadeDuration)
+        {
+            timeElapsed += Time.deltaTime;
+            float t = timeElapsed / fadeDuration;
+
+            float newAlpha = Mathf.Lerp(0f, 1f, t);
+            print(newAlpha);
+            SetAlpha(newAlpha);
+
+            yield return null;
+        }
+
+        SetAlpha(1f);
+        isFade = false;
+    }
+
+    IEnumerator FadeOutCoroutine()
+    {
+        float timeElapsed = 0f;
+
+        while (timeElapsed < fadeDuration)
+        {
+            timeElapsed += Time.deltaTime;
+            float t = timeElapsed / fadeDuration;
+
+            float newAlpha = Mathf.Lerp(1f, 0f, t);
+            SetAlpha(newAlpha);
+
+            yield return null;
+        }
+
+        SetAlpha(0f);
+
+        SetLayerRecursive(gameObject, LayerMask.NameToLayer(transparentLayer));
+    }
+}
