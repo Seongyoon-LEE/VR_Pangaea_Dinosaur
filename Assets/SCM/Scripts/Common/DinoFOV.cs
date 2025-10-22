@@ -43,7 +43,6 @@ public class DinoFOV : MonoBehaviour
 
             if (IsPlayer()) // 플레이어 인식
             {
-                print("확인");
                 OnPlayerRecognized();
             }
         }

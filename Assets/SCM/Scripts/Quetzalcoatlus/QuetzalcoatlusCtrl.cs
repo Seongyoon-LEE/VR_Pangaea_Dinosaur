@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class QuetzalcoatlusCtrl : MonoBehaviour
+public class QuetzalcoatlusCtrl : MonoBehaviour, IDinoCtrl
 {
     private readonly int hashLeftRight = Animator.StringToHash("LeftRight");
     private readonly int hashUpDown = Animator.StringToHash("UpDown");
@@ -19,6 +19,7 @@ public class QuetzalcoatlusCtrl : MonoBehaviour
     float rotSpeed = 10f;
     private Transform playerTr;
     Animator animator;
+    WaitForSeconds ws;
 
     float dampTime = 3f;
     [SerializeField] float curTime = 0f;
@@ -28,20 +29,29 @@ public class QuetzalcoatlusCtrl : MonoBehaviour
     {
         path = GameObject.Find("Points").GetComponent<PatrolPoints>();
         animator = transform.GetChild(0).GetComponent<Animator>();
+        ws = new WaitForSeconds(0.1f);
+
+        StartCoroutine(UpdateCurrentStatus());
     }
 
-    void FixedUpdate()
+    public IEnumerator UpdateCurrentStatus()
     {
-        switch (status)
+        while (true)
         {
-            case Status.PATROL:
-                OnPatrol();
-                break;
-            case Status.ATTACK:
-                OnAttack();
-                break;
+            yield return ws;
+
+            switch (status)
+            {
+                case Status.PATROL:
+                    OnPatrol();
+                    break;
+                case Status.ATTACK:
+                    OnAttack();
+                    break;
+            }
         }
     }
+
 
     private void LateUpdate()
     {
@@ -66,7 +76,7 @@ public class QuetzalcoatlusCtrl : MonoBehaviour
         }
         
     }
-    void OnPatrol()
+    public void OnPatrol()
     {
         Vector3 movePos = path.GetWayPoint(idx) - transform.position;
         movePos.y = 0f;
@@ -83,7 +93,7 @@ public class QuetzalcoatlusCtrl : MonoBehaviour
         }
     }
 
-    void OnAttack()
+    public void OnAttack()
     {
         if (playerTr == null) return;
         Vector3 movePos = playerTr.position - transform.position;
@@ -97,6 +107,16 @@ public class QuetzalcoatlusCtrl : MonoBehaviour
         status = Status.ATTACK;
         playerTr = tr;
         moveSpeed = 5f;
+    }
+
+    public void OnTrace()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void OnIdle()
+    {
+        throw new System.NotImplementedException();
     }
 
     
