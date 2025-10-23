@@ -16,11 +16,10 @@ public class InventorySystem : MonoBehaviour
     [Header("참조")]
     public InventoryUIManager uiManager; // 인벤토리 UI 매니저
 
-    public Transform handTransform; // 아이템을 들 위치    
-
     int currentEquippedItemIndex = -1; // 현재 장착된 아이템 인덱스
-    RevolverAttach curRevolverAttach; // 현재 장착된 리볼버 스크립트
 
+    private IEquippable curEquippedItem; // 현재 장착된 아이템 인터페이스
+    public Transform handTr // 아이템이 붙을 오른손
     public GameObject leftHandModel; // 왼손 모델
     public GameObject rightHandModel; // 오른손 모델
 
@@ -71,10 +70,23 @@ public class InventorySystem : MonoBehaviour
             rightHandModel.SetActive(false); // 손 모델 숨기기
 
         GameObject itemToEquip = items[itemIndex];
-        currentEquippedItemIndex = itemIndex;
 
-        // 아이템을 활성화!
-        itemToEquip.SetActive(true);
+        curEquippedItem = itemToEquip.GetComponent<IEquippable>();
+
+        if (curEquippedItem != null)
+        {
+            // 인터페이스가 있다면 장착해라고 명령
+            curEquippedItem.Equip(handTr);
+            currentEquippedItemIndex = itemIndex; // 장착 성공
+        }
+        else
+        {
+            Debug.LogError($"{itemToEquip.name} 아이템에 IEquippable 인터페이스가 없습니다.");
+
+        }
+
+            // 아이템을 활성화!
+            itemToEquip.SetActive(true);
 
         // 아이템에 붙어있는 RevolverAttach 스크립트를 찾아서 Attach 함수를 호출!
         var attachable = itemToEquip.GetComponent<RevolverAttach>();
@@ -86,22 +98,17 @@ public class InventorySystem : MonoBehaviour
     // 현재 들고 있는 아이템을 집어넣는 기능
     void UnequipCurrentItem()
     {
-        if (currentEquippedItemIndex != -1)
+        if(curEquippedItem != null)
         {
-            // 내려놓을 아이템에서 RevolverAttach 스크립트를 찾아서 Detach 함수를 호출!
-            var attachable = items[currentEquippedItemIndex].GetComponent<RevolverAttach>();
-            if (attachable != null)
-            {
-                attachable.Detach();
-            }
-
-            items[currentEquippedItemIndex].SetActive(false);
-            currentEquippedItemIndex = -1;
-
-            if (leftHandModel != null)
-                leftHandModel.SetActive(true); // 손 모델 숨기기
-            if (rightHandModel != null)
-                rightHandModel.SetActive(true); // 손 모델 숨기기
+            // 인터페이스가 있다면 집어넣어라고 명령
+            curEquippedItem.Unequip();
+            curEquippedItem = null;
         }
+        currentEquippedItemIndex = -1;
+
+        if(leftHandModel != null)
+            leftHandModel.SetActive(true); // 손 모델 보이기
+        if (rightHandModel != null)
+            rightHandModel.SetActive(true); // 손 모델 보이기
     }
 }
