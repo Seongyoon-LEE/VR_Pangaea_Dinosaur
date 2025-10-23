@@ -185,6 +185,8 @@ public class RevolverCtrl : MonoBehaviour, IEquippable
         // 총 활성화 되었으니 입력 받음
         shootActionReference.action.performed += OnShoot;
         shootActionReference.action.Enable();
+
+        PlayerStateManager.Instance.ChangeState(PlayerState.Revolver);
     }
     public void Unequip()
     {
