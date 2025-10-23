@@ -19,7 +19,7 @@ public class InventorySystem : MonoBehaviour
     int currentEquippedItemIndex = -1; // 현재 장착된 아이템 인덱스
 
     private IEquippable curEquippedItem; // 현재 장착된 아이템 인터페이스
-    public Transform handTr // 아이템이 붙을 오른손
+    public Transform handTr; // 아이템이 붙을 오른손
     public GameObject leftHandModel; // 왼손 모델
     public GameObject rightHandModel; // 오른손 모델
 
@@ -51,10 +51,18 @@ public class InventorySystem : MonoBehaviour
         if (!uiManager.IsOpen)
         {
             UnequipCurrentItem();
+
+            // 상태 관리자에게 지금 인벤토리 연다 알림
+            PlayerStateManager.Instance.ChangeState(PlayerState.Inventory);
         }
-        // UI 매니저에게 인벤토리를 토글하라고 명령
+        else
+        {
+            // 인벤토리 닫으면 기본 상태 핸드
+            PlayerStateManager.Instance.ChangeState(PlayerState.Hand);
+        }
         uiManager.ToggleInventory();
     }
+    
     // 특정 번호의 아이템을 장착하는 기능
     public void EquipItem(int itemIndex)
     {
@@ -106,7 +114,10 @@ public class InventorySystem : MonoBehaviour
         }
         currentEquippedItemIndex = -1;
 
-        if(leftHandModel != null)
+        // 아이템을 손에서 놨으니 무조건 Hand 상태로 변경
+        PlayerStateManager.Instance.ChangeState(PlayerState.Hand);
+
+        if (leftHandModel != null)
             leftHandModel.SetActive(true); // 손 모델 보이기
         if (rightHandModel != null)
             rightHandModel.SetActive(true); // 손 모델 보이기

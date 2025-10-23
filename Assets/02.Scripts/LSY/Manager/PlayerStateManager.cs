@@ -28,7 +28,7 @@ public class PlayerStateManager : MonoBehaviour
     void Start()
     {
         // 게임 시작시 맨손
-        
+        ChangeState(PlayerState.Hand);
     }
     public void ChangeState(PlayerState newState)
     {
@@ -39,5 +39,18 @@ public class PlayerStateManager : MonoBehaviour
         print($"[PlayerStateManager] State Changed to: {CurState}");
 
         OnStateChanged.Invoke(newState);
+    }
+    public bool CanPerformAction()
+    {
+        switch (CurState)
+        {
+            case PlayerState.Inventory:
+            case PlayerState.Hiding:
+                return false;
+
+            // 그 외엔 행동 가능 
+            default:
+                return true;
+        }
     }
 }
