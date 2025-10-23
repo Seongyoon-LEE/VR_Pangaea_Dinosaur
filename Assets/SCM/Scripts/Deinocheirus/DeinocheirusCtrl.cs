@@ -7,12 +7,12 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
 {
     private readonly string transparentLayer = "Transparent";
     private readonly string dinoLayer = "DINO";
-    private enum Status
+    public enum Status
     {
-        None, PATROL, TRACE, ATTACK
+        None, PATROL, TRACE, ATTACK, STUN
     }
-    [SerializeField]
-    private Status status = Status.PATROL;
+    
+    public Status status = Status.PATROL;
 
     Animator animator;
     NavMeshAgent agent;
@@ -44,7 +44,16 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
     {
         status = Status.TRACE;
         playerTr = tr;
+        fadeCoroutine = null;
         FadeIn();
+    }
+
+    public void PlayerLeave()
+    {
+        status = Status.PATROL;
+        playerTr = null;
+        fadeCoroutine = null;
+        FadeOut();
     }
     public IEnumerator UpdateCurrentStatus()
     {
