@@ -110,7 +110,15 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
 
     public void OnAttack()
     {
-        throw new System.NotImplementedException();
+        if (playerTr == null) return;
+
+        //animator.SetBool(hashAttack, true);
+        agent.isStopped = true;
+
+        Vector3 taget = (playerTr.position - transform.position).normalized;
+
+        Quaternion rot = Quaternion.LookRotation(taget);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * rotSpeed);
     }
 
     public void OnIdle()
