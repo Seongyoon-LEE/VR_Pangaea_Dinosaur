@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 
-public class RevolverCtrl : MonoBehaviour
+public class RevolverCtrl : MonoBehaviour, IEquippable
 {
     [Header("총 데이터")]
     public GunData gunData;  // 총 데이터
@@ -21,7 +21,10 @@ public class RevolverCtrl : MonoBehaviour
     [Header("피격 설정")]
     public LayerMask hittableLayers; // 피격 이펙트가 발생할 레이어들을 선택
 
-    
+    [Header("장착 보정값")]
+    public Vector3 positionOffset = Vector3.zero; // 장착 위치 오프셋
+    public Vector3 rotationOffset = Vector3.zero; // 장착 회전 오프셋
+
 
     float nextFireTime = 0f; // 다음 발사 가능 시간
     Vector3 originalPosition; // 총의 원래 위치 (반동 계산)
@@ -168,5 +171,28 @@ public class RevolverCtrl : MonoBehaviour
         originalPosition = transform.localPosition;
         originalRotation = transform.localRotation;
         originalEulerAngles = transform.localEulerAngles; // 원래 각도 저장
+    }
+
+    public void Equip(Transform handParent)
+    {
+        // 손을 부모로 정함
+        transform.SetParent(handParent);
+        // 정한 오프셋 위치값을 
+        transform.localPosition = positionOffset;
+        transform.localRotation = Quaternion.Euler(rotationOffset);
+        // 게임 오브젝트 활성화
+        gameObject.SetActive(true);
+        // 총 활성화 되었으니 입력 받음
+        shootActionReference.action.performed += OnShoot;
+        shootActionReference.action.Enable();
+    }
+    public void Unequip()
+    {
+        shootActionReference.action.performed -= OnShoot;
+        shootActionReference.action.Disable();
+        // 부모 관계 해제
+        transform.SetParent(null);
+        // 게임 오브젝트 비활성화
+        gameObject.SetActive(false);
     }
 }

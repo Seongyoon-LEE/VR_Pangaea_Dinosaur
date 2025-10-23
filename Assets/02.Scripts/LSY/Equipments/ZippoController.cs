@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Animator))] // 이 스크립트는 Animator가 꼭 필요해!
-public class ZippoController : MonoBehaviour
+public class ZippoController : MonoBehaviour, IEquippable
 {
     [Header("핵심 부품")]
     [Tooltip("지포라이터의 애니메이터")]
@@ -14,12 +14,16 @@ public class ZippoController : MonoBehaviour
     [Tooltip("라이터를 켜고 끄는 액션 (예: 오른손 트리거)")]
     public InputActionReference useAction;
 
+    [Header("장착 보정값")]
+    public Vector3 positionOffset = Vector3.zero;
+    public Vector3 rotationOffset = Vector3.zero;
+
     // "IsOpen"이라는 애니메이터 파라미터 이름을 숫자로 바꿔서 기억해두면 성능에 좋아!
     private readonly int isOpenHash = Animator.StringToHash("IsOpened");
 
     // 현재 라이터가 켜져 있는지 기억하는 변수
     private bool isOpen = false;
-    bool isBusy = false;
+    private bool isBusy = false;
     void Awake()
     {
         // 만약 인스펙터에서 연결 안 해줬으면, 스스로 찾아보게!
@@ -81,5 +85,32 @@ public class ZippoController : MonoBehaviour
     {
         isBusy = false;
         Debug.Log("애니메이션 완료!");
+    }
+
+    public void Equip(Transform handParent)
+    {
+        transform.SetParent(handParent);
+        transform.localPosition = positionOffset;
+        transform.localRotation = Quaternion.Euler(rotationOffset);
+        gameObject.SetActive(true);
+
+        // 켜질 땐 항상 닫힌 상태로 시작 (애님 초기화)
+        isOpen = false;
+        animator.SetBool(isOpenHash, isOpen);
+        isBusy = false;
+
+        useAction.action.performed += OnUsePressed;
+        useAction.action.Enable();
+    }
+
+    public void Unequip()
+    {
+        useAction.action.performed -= OnUsePressed;
+        useAction.action.Disable();
+
+        // 불 끄고 비활성화
+        if (flameLight != null) flameLight.enabled = false;
+        transform.SetParent(null);
+        gameObject.SetActive(false);
     }
 }
