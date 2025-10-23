@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -44,11 +45,10 @@ public class DragonflyMove : MonoBehaviour, IDinoCtrl
         ws = new WaitForSeconds(0.1f);
         escapeSeconds = new WaitForSeconds(3f);
 
-        StartCoroutine(UpdateCurrentStatus());
-        StartCoroutine(FindPlayer());
-        path = GameObject.Find("DragonflyPoints").GetComponent<PatrolPoints>();
+        path = GameObject.Find("DragonFlyPoints").GetComponent<PatrolPoints>();
 
         agent.avoidancePriority = Random.Range(50, 80);
+        agent.enabled = false;
         PointIndexSet(true);
         while(!PointSetComplete())
         {
@@ -56,13 +56,16 @@ public class DragonflyMove : MonoBehaviour, IDinoCtrl
         }
         RespawnPosition(path.GetWayPoint(idx));
         //transform.position = path.GetWayPoint(idx);
-    }
 
+        StartCoroutine(UpdateCurrentStatus());
+        StartCoroutine(FindPlayer());
+    }
     private void Update()
     {
         if (isFocus)
         {
             Vector3 taget = (playerTr.position - transform.position).normalized;
+            
 
             Quaternion rot = Quaternion.LookRotation(taget);
             transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * rotSpeed);
@@ -101,7 +104,7 @@ public class DragonflyMove : MonoBehaviour, IDinoCtrl
         }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         if (other.CompareTag(torchTag))
         {
@@ -208,6 +211,19 @@ public class DragonflyMove : MonoBehaviour, IDinoCtrl
 
             if (status == Status.RETURN) continue;
 
+            if (isTorch)
+            {
+                // 회피
+                //status = Status.ESCAPE;
+                //break;
+
+                // 복귀
+                status = Status.RETURN;
+                isPosition = false;
+                continue;
+            }
+
+
             float dist = (playerTr.position - transform.position).sqrMagnitude;
 
             if (dist < attackRange)
@@ -225,16 +241,7 @@ public class DragonflyMove : MonoBehaviour, IDinoCtrl
                 status = Status.None;
             }
 
-            if (isTorch)
-            {
-                // 회피
-                //status = Status.ESCAPE;
-                //break;
-
-                // 복귀
-                status = Status.RETURN;
-                isPosition = false;
-            }
+            
         }
     }
 
@@ -317,7 +324,7 @@ public class DragonflyMove : MonoBehaviour, IDinoCtrl
         {
             Vector3 randomOffset = new Vector3(
                     Random.Range(-maxOffsetRange, maxOffsetRange),
-                    -0.23f,
+                    0.3f,
                     Random.Range(-maxOffsetRange, maxOffsetRange)
                 );
 
@@ -325,13 +332,15 @@ public class DragonflyMove : MonoBehaviour, IDinoCtrl
 
             // Physics.CheckSphere를 사용하여 겹침 확인
             // CheckSphere가 false를 반환해야 겹침이 없는 것입니다.
-            if (!Physics.CheckSphere(attemptedPosition, radius, 1 << gameObject.layer))
+            if (!Physics.CheckSphere(attemptedPosition, radius, 1 << this.gameObject.layer))
             {
                 // 겹침이 없다면 위치를 확정하고 루프 종료
                 transform.position = attemptedPosition;
                 break;
             }
         }
+        print("배치 완료");
+        agent.enabled = true;
     }
 
     public void FindOut(Transform tr)
