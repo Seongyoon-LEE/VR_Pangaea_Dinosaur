@@ -62,7 +62,7 @@ public class InventorySystem : MonoBehaviour
         }
         uiManager.ToggleInventory();
     }
-    
+
     // 특정 번호의 아이템을 장착하는 기능
     public void EquipItem(int itemIndex)
     {
@@ -74,7 +74,7 @@ public class InventorySystem : MonoBehaviour
 
         if (leftHandModel != null)
             leftHandModel.SetActive(false); // 손 모델 숨기기
-        if(rightHandModel != null)
+        if (rightHandModel != null)
             rightHandModel.SetActive(false); // 손 모델 숨기기
 
         GameObject itemToEquip = items[itemIndex];
@@ -93,8 +93,8 @@ public class InventorySystem : MonoBehaviour
 
         }
 
-            // 아이템을 활성화!
-            itemToEquip.SetActive(true);
+        // 아이템을 활성화!
+        itemToEquip.SetActive(true);
 
         // 아이템에 붙어있는 RevolverAttach 스크립트를 찾아서 Attach 함수를 호출!
         var attachable = itemToEquip.GetComponent<RevolverAttach>();
@@ -104,7 +104,7 @@ public class InventorySystem : MonoBehaviour
         }
     }
     // 현재 들고 있는 아이템을 집어넣는 기능
-    void UnequipCurrentItem()
+    public void UnequipCurrentItem()
     {
         if(curEquippedItem != null)
         {
@@ -121,5 +121,9 @@ public class InventorySystem : MonoBehaviour
             leftHandModel.SetActive(true); // 손 모델 보이기
         if (rightHandModel != null)
             rightHandModel.SetActive(true); // 손 모델 보이기
+    }
+    public IEquippable GetCurrentEquippedItem()
+    {
+        return curEquippedItem;
     }
 }

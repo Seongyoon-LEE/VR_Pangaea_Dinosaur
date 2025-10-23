@@ -101,6 +101,8 @@ public class ZippoController : MonoBehaviour, IEquippable
 
         useAction.action.performed += OnUsePressed;
         useAction.action.Enable();
+
+        PlayerStateManager.Instance.ChangeState(PlayerState.Lighter);
     }
 
     public void Unequip()
