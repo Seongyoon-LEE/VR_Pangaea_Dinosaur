@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Experimental.XR.Interaction;
-using static UnityEngine.GraphicsBuffer;
 /*
 플레이어 위치 값을 멀리서부터 알 수 있다. 딜로포사우루스는 플레이어 이동속도에 0.5배의 속도로 쫒아온다.
 플레이어에게 닿을 시 공격하며 라이터를 들 시 멀리 도망간다.

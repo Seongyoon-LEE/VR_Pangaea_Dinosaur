@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEngine.GraphicsBuffer;
 
 public class Raptor : Dino
 {
@@ -185,15 +184,8 @@ public class Raptor : Dino
                     // 중간에 장애물에 막힘
                 }*/
             }
-            if (Vector3.Distance(this.transform.position, this.agent.destination) < 0.5f)
-            {
-                //목적지에 도착함(마지막으로 본 장소)
-                //위에서 시야에 보이는지 이미 체크함 / 보였다면 continue해서 코루틴 처음으로 감
-                //즉 여기에 왔으면 안보이고, 목적지에도 도착한거니 다시 순찰
-                this.target = null;
-                this.Status = eStatus.Wait;
-            }
-
+            //위 조건 어디에도 안걸렸다면 걸릴때까지 다시
+            yield return wsForMove;
         }
     }
 }
