@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class DinoFOV : MonoBehaviour
 {
@@ -45,6 +44,10 @@ public class DinoFOV : MonoBehaviour
             {
                 OnPlayerRecognized();
             }
+            else
+            {
+                OnPlayerLost();
+            }
         }
     }
 
@@ -82,16 +85,19 @@ public class DinoFOV : MonoBehaviour
                 playerTr = targetTr;
 
             Vector3 directionToTarget = (targetTr.position - _light.transform.position).normalized;
-
+            //print(Vector3.Angle(_light.transform.forward, directionToTarget));
+            //print(viewAngle / 2);
             // 시야각 확인
             if (Vector3.Angle(_light.transform.forward, directionToTarget) < viewAngle / 2)
             {
-                float distanceToTarget = Vector3.Distance(transform.position, targetTr.position);
+                print("시야각 확인");
+                float distanceToTarget = Vector3.Distance(_light.transform.forward, targetTr.position);
 
                 // Raycast: 장애물에 가려졌는지 확인
                 // obstacleMask에 설정된 것(플레이어, 바닥 등 제외한 모든 것)에 부딪히는지 검사
-                if (!Physics.Raycast(transform.position, directionToTarget, distanceToTarget, obstacleMask))
+                if (!Physics.Raycast(_light.transform.forward, directionToTarget, distanceToTarget, obstacleMask))
                 {
+                    print("장애물없음");
                     // 모든 조건 충족: 플레이어를 인식함
                     return true;
                 }

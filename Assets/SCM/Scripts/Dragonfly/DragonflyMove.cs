@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -347,7 +346,10 @@ public class DragonflyMove : MonoBehaviour, IDinoCtrl
     {
         throw new System.NotImplementedException();
     }
-
+    public void ClearSight()
+    {
+        throw new System.NotImplementedException();
+    }
     public void OnPatrol()
     {
         throw new System.NotImplementedException();
