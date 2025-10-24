@@ -731,7 +731,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!136 &520230192
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1309,7 +1309,7 @@ PrefabInstance:
     - target: {fileID: 3618955808562213674, guid: 95a7184a914ddb949a0d41f4d9ad3b94,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.62
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3618955808562213674, guid: 95a7184a914ddb949a0d41f4d9ad3b94,
         type: 3}
@@ -1378,7 +1378,7 @@ GameObject:
   - component: {fileID: 984386278}
   - component: {fileID: 984386277}
   m_Layer: 0
-  m_Name: DragonflyPoints
+  m_Name: DragonFlyPoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1961,7 +1961,7 @@ PrefabInstance:
     - target: {fileID: 3618955808562213674, guid: 95a7184a914ddb949a0d41f4d9ad3b94,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.95
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3618955808562213674, guid: 95a7184a914ddb949a0d41f4d9ad3b94,
         type: 3}
@@ -2680,7 +2680,7 @@ PrefabInstance:
     - target: {fileID: 3618955808562213674, guid: 95a7184a914ddb949a0d41f4d9ad3b94,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.74
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3618955808562213674, guid: 95a7184a914ddb949a0d41f4d9ad3b94,
         type: 3}
@@ -2858,7 +2858,7 @@ PrefabInstance:
     - target: {fileID: 3618955808562213674, guid: 95a7184a914ddb949a0d41f4d9ad3b94,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.26
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3618955808562213674, guid: 95a7184a914ddb949a0d41f4d9ad3b94,
         type: 3}
@@ -4001,7 +4001,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1902022645
 Transform:
   m_ObjectHideFlags: 0
@@ -5706,16 +5706,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1463941588}
     m_Modifications:
-    - target: {fileID: 1676949183563990053, guid: 95a7184a914ddb949a0d41f4d9ad3b94,
-        type: 3}
-      propertyPath: m_Radius
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1676949183563990053, guid: 95a7184a914ddb949a0d41f4d9ad3b94,
-        type: 3}
-      propertyPath: m_StoppingDistance
-      value: 1.9
-      objectReference: {fileID: 0}
     - target: {fileID: 3618955808562213674, guid: 95a7184a914ddb949a0d41f4d9ad3b94,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -5770,11 +5760,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Dragonfly
-      objectReference: {fileID: 0}
-    - target: {fileID: 4100287771844026024, guid: 95a7184a914ddb949a0d41f4d9ad3b94,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
