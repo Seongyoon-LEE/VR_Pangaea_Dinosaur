@@ -25,7 +25,8 @@ public class QuetzalcoatlusFOV : DinoFOV
     protected override void OnPlayerRecognized()
     {
         base.OnPlayerRecognized();
-        //quetzalcoatlus.FindOut(playerTr);
-        //_light.enabled = false;
+        print("Ã£À½");
+        quetzalcoatlus.FindOut(playerTr);
+        _light.enabled = false;
     }
 }

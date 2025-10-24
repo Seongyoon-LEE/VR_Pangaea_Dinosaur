@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -18,19 +19,24 @@ public class SpinosaurusCtrl : MonoBehaviour, IDinoCtrl
     Animator animator;
     NavMeshAgent agent;
     WaitForSeconds ws;
+    Rigidbody rb;
     private Transform playerTr;
     PatrolPoints path;
     int idx = 0;
     public float runSpeed = 5f;
     float rotSpeed = 10f;
-
-
+    private float upTime = 30f;
+    private float downTime = 5f;
+    private float topY = 1f;
+    private float bottomY = -11f;
     void Start()
     {
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
+        agent.enabled = false;
+        rb = GetComponent<Rigidbody>();
         ws = new WaitForSeconds(0.3f);
-        path = GameObject.Find("Points").GetComponent<PatrolPoints>(); // 이름 변경
+        path = GameObject.Find("SpinoPoints").GetComponent<PatrolPoints>(); // 이름 변경
         //StartCoroutine(UpdateCurrentStatus()); // 호출 위치 나중에 변경
     }
 
@@ -58,8 +64,30 @@ public class SpinosaurusCtrl : MonoBehaviour, IDinoCtrl
         }
     }
 
+    public IEnumerator DinoUpAndDown(bool isUp)
+    {
+        Vector3 startPos = transform.position;
+        Vector3 endPos = startPos;
+        endPos.y = isUp ? topY : bottomY;
+
+        float moveTime = isUp ? upTime : downTime;
+
+        float startTime = Time.time;
+        while(Time.time <= startTime + moveTime)
+        {
+            float y = (Time.time - startTime) / moveTime;
+            transform.position = Vector3.Lerp(startPos, endPos, y);
+
+            yield return null;
+        }
+
+        transform.position = endPos;
+        DinoAppeared();
+    }
     public void DinoAppeared()
     {
+        agent.enabled = true;
+        rb.useGravity = true;
         StartCoroutine(UpdateCurrentStatus());
         status = Status.PATROL;
     }
@@ -67,8 +95,6 @@ public class SpinosaurusCtrl : MonoBehaviour, IDinoCtrl
     {
         status = Status.TRACE;
         playerTr = tr;
-        agent.isStopped = false;
-        agent.destination = playerTr.position;
     }
 
     public void OnPatrol()
@@ -84,7 +110,7 @@ public class SpinosaurusCtrl : MonoBehaviour, IDinoCtrl
 
     public void OnTrace()
     {
-        if (Vector3.Distance(path.FlattenY(playerTr.position), path.FlattenY(transform.position)) < 5f)
+        if (Vector3.Distance(path.FlattenY(playerTr.position), path.FlattenY(transform.position)) < 6f)
         {
             status = Status.ATTACK;
             return;
@@ -100,6 +126,11 @@ public class SpinosaurusCtrl : MonoBehaviour, IDinoCtrl
     public void OnAttack()
     {
         if (playerTr == null) return;
+        if (Vector3.Distance(path.FlattenY(playerTr.position), path.FlattenY(transform.position)) > 6f)
+        {
+            status = Status.TRACE;
+            return;
+        }
 
         animator.SetBool(hashAttack, true);
         agent.isStopped = true;

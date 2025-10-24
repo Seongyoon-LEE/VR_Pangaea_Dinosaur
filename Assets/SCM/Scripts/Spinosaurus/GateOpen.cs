@@ -4,62 +4,74 @@ using UnityEngine;
 
 public class GateOpen : MonoBehaviour
 {
+    private readonly int hashOpen = Animator.StringToHash("IsOpen");
+    private readonly int hashClose = Animator.StringToHash("Close");
     Animator animator;
+
     WaitForSeconds openSeconds;
     WaitForSeconds ws;
     SpinosaurusCtrl spinosaurus;
-    Vector3 initPosition;
-    float curTime = 0f;
+    Coroutine upDownCoroutine;
+
+    public bool isCloseTest = false;
     void Start()
     {
         animator = GetComponent<Animator>();
-        openSeconds = new WaitForSeconds(180f);
+        openSeconds = new WaitForSeconds(5f);
         ws = new WaitForSeconds(0.3f);
-        spinosaurus = GetComponent<SpinosaurusCtrl>();
-        initPosition = transform.position;
-        StartCoroutine(GateOepn());
+        spinosaurus = GameObject.FindFirstObjectByType<SpinosaurusCtrl>();
+        StartCoroutine(GateOpon());
     }
 
-    IEnumerator GateOepn()
+    private void Update()
     {
-        yield return openSeconds;
-
-        if (Random.value >= 0.3f)
+        if (isCloseTest)
         {
-            StartCoroutine(GateOepn());
-            yield break;
+            StartCoroutine(GateClose());
         }
-        // 오픈 애니메이션
-        // 사이렌 소리
-        // 스피노 등장
-        StartCoroutine(RiseDinoWater());
     }
-
-    IEnumerator RiseDinoWater()
+    IEnumerator GateOpon()
     {
-        while(true)
+        while (true)
         {
-            curTime += Time.deltaTime;
-            yield return ws;
-
-            // 서서히 올라오게
-
-            // 스피노 물 밖 등장
-            if (curTime - Time.deltaTime >= 30f)
+            print("열림?");
+            yield return openSeconds;
+            if (Random.value <= 0.8f)
             {
-                spinosaurus.DinoAppeared();
+                print("열림!");
+                // 오픈 애니메이션
+                animator.SetBool(hashOpen, true);
+                // 사이렌 소리
+                // 스피노 등장
+                upDownCoroutine = StartCoroutine(spinosaurus.DinoUpAndDown(true));
                 yield break;
             }
         }
     }
 
-    public void GateClose()
+
+    IEnumerator GateClose()
     {
-        curTime = 0f;
-        StopAllCoroutines();
-        StartCoroutine(GateOepn());
-        transform.position = initPosition;
+        isCloseTest = false;
+        if (upDownCoroutine != null)
+        {
+            StopCoroutine(upDownCoroutine);
+            upDownCoroutine = null;
+        }
+
+        yield return null;
+
+        upDownCoroutine = StartCoroutine(spinosaurus.DinoUpAndDown(false));
+
+        yield return new WaitForSeconds(5f);
+
         // 철창 닫는 애니메이션
+        animator.SetBool(hashOpen, false);
+        animator.SetTrigger(hashClose);
+
         // 사이렌 종료
+
+        StartCoroutine(GateOpon());
+        
     }
 }

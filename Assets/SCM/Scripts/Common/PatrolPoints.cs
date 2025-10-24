@@ -20,9 +20,14 @@ public class PatrolPoints : MonoBehaviour
         }
     }
 
-    public Vector3 GetWayPoint(int idx)
+    public Vector3 GetWayPoint(int idx, Transform tr = null)
     {
-        return transform.GetChild(idx).position;
+        Vector3 tempPos = transform.GetChild(idx).position;
+        if (tr != null)
+        {
+            tempPos.y = tr.position.y;
+        }
+        return tempPos;
     }
 
     public int CurrentWayPoint(int idx)

@@ -16,4 +16,5 @@ public class DeinocheirusFOV : DinoFOV
         base.OnPlayerRecognized();
         deinocheirus.FindOut(playerTr);
     }
+
 }
