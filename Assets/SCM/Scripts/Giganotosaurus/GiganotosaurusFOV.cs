@@ -5,7 +5,7 @@ using UnityEngine;
 public class GiganotosaurusFOV : DinoFOV
 {
     private Vector3 initPos = Vector3.zero;
-    public float minSqrDist = 1f;
+    public float minSqrDist = 0f;
     protected override void Start()
     {
         isRandom = true;
@@ -25,7 +25,6 @@ public class GiganotosaurusFOV : DinoFOV
 
         // 이후에 위치값으로 거리를 계산해서 움직인 판정
         float distSqr = (initPos - playerTr.position).sqrMagnitude;
-        print(distSqr);
         // 일정 거리 이동하면 사망처리
         if (distSqr >= minSqrDist)
         {
