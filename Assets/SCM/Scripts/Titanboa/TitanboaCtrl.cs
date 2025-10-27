@@ -20,7 +20,9 @@ public class TitanboaCtrl : MonoBehaviour
     {
         if (isTirrger != type)
         {
-            animator.SetTrigger(type ? hashForward : hashBack);
+            //animator.SetTrigger(type ? hashForward : hashBack);
+            if (type)
+                animator.SetTrigger(hashForward);
             rig.weight = type ? 1f : 0f;
             isTirrger = type;
         }
