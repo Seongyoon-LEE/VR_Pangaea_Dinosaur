@@ -17,6 +17,7 @@ public abstract class Dino : MonoBehaviour
 {
     public float speed;
     public float angularSpeed;
+    public PatrolPointsControl patrolPoints;
     protected NavMeshAgent agent;
     protected readonly string playerStr = "PLAYER";
     protected readonly string playerHideStr = "PlayerHide";
@@ -62,7 +63,15 @@ public abstract class Dino : MonoBehaviour
     protected WaitForSeconds wsForMove = new WaitForSeconds(0.2f);
     protected IEnumerator PatrolRoutine()
     {
-        yield return null; // 순찰 포인트 잡아서 순찰하도록
+        while (true)
+        {
+            
+            if(Vector3.Distance(this.agent.destination, this.patrolPoints.GetPoint()) < 1f)
+            {
+                this.agent.SetDestination(this.patrolPoints.GetNextPoint());
+            }
+            yield return wsForMove;
+        }
     }
     protected IEnumerator ChaseRoutine()
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 public enum ePlayerStatus
 {
-    Normal = 0, Lighter = 1, TryHide = 2
+    Normal = 0, Lighter = 1, TryHide = 2, Running = 3
 }
 public class KYS_Player_Status : MonoBehaviour
 {
