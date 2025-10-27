@@ -19,6 +19,8 @@ public class Raptor : Dino
     private int weaponLevel;
     private int hungryLevel;
 
+    public Renderer body;
+
     private bool isAttacking = false;
     void Start()
     {
@@ -33,15 +35,16 @@ public class Raptor : Dino
         this.agent.speed = speed;
         this.patrol = this.PatrolRoutine();
         this.chase = this.ChaseRoutine();
+
+        this.Status = eStatus.Wait;
     }
 
     WaitForSeconds ws = new WaitForSeconds(1);
     IEnumerator SeenRoutine()
     {
-        var vis = this.GetComponent<Renderer>();
         while (!isAttacking)
         {
-            if (!vis.isVisible)
+            if (!body.isVisible)
             {
                 seenLevel = 10;
             }
@@ -72,7 +75,7 @@ public class Raptor : Dino
         while (!isAttacking)
         {
             //무기를 들고있는것 체크
-            if (true)
+            if (/*this.target.GetComponent<KYS_Player_Status>().status == ePlayerStatus.Lighter*/true)
             {
                 this.weaponLevel = -10;
             }

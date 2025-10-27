@@ -8,7 +8,6 @@ public class CryingAngel : Dino
     Renderer render;
     private void Start()
     {
-        Debug.Log("s");
         this.render = GetComponent<Renderer>();
         this.agent = GetComponent<NavMeshAgent>();
         this.agent.speed = speed;
