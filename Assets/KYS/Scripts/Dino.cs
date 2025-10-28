@@ -63,10 +63,11 @@ public abstract class Dino : MonoBehaviour
     protected WaitForSeconds wsForMove = new WaitForSeconds(0.2f);
     protected IEnumerator PatrolRoutine()
     {
+        this.agent.SetDestination(this.patrolPoints.GetNextPoint());
         while (true)
         {
-            
-            if(Vector3.Distance(this.agent.destination, this.patrolPoints.GetPoint()) < 1f)
+            Debug.Log(Vector3.Distance(this.transform.position, this.patrolPoints.GetPoint()));
+            if(Vector3.Distance(this.transform.position, this.patrolPoints.GetPoint()) < 10f)
             {
                 this.agent.SetDestination(this.patrolPoints.GetNextPoint());
             }
