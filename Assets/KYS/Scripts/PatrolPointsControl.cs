@@ -7,10 +7,11 @@ using UnityEngine;
 public class PatrolPointsControl : MonoBehaviour
 {
     List<Transform> points;
-    private int idx;
+    public int idx;
     private void Start()
     {
         points = GetComponentsInChildren<Transform>().ToList();
+        this.transform.parent = null;
         points.RemoveAt(0);
         this.idx = 0;
     }
