@@ -8,7 +8,7 @@ public class PatrolPointsControl : MonoBehaviour
 {
     List<Transform> points;
     public int idx;
-    private void Start()
+    private void Awake()
     {
         points = GetComponentsInChildren<Transform>().ToList();
         this.transform.parent = null;

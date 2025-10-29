@@ -14,7 +14,12 @@ public class DeinocheirusFOV : DinoFOV
     protected override void OnPlayerRecognized()
     {
         base.OnPlayerRecognized();
-        deinocheirus.FindOut(playerTr);
+        deinocheirus.FindOut(playerTr, isFOV);
+    }
+    protected override void OnPlayerLost()
+    {
+        base.OnPlayerLost();
+        deinocheirus.PlayerLeave(isFOV);
     }
 
 }

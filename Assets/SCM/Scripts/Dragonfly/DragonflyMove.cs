@@ -121,7 +121,12 @@ public class DragonflyMove : MonoBehaviour, IDinoCtrl
 
     public void OnTrace()
     {
-        print("추격");
+        if (PlayerStateManager.Instance.CurState == PlayerState.Hiding)
+        {
+            status = Status.RETURN;
+            isPosition = false;
+            return;
+        }
         isFocus = true;
         animator.SetBool(hashTrace, true);
         animator.SetBool(hashAttack, false);
@@ -208,6 +213,7 @@ public class DragonflyMove : MonoBehaviour, IDinoCtrl
         {
             yield return ws;
 
+            
             if (status == Status.RETURN) continue;
 
             if (isTorch)
@@ -341,19 +347,18 @@ public class DragonflyMove : MonoBehaviour, IDinoCtrl
         print("배치 완료");
         agent.enabled = true;
     }
-
-    public void FindOut(Transform tr)
-    {
-        throw new System.NotImplementedException();
-    }
-    public void ClearSight()
-    {
-        throw new System.NotImplementedException();
-    }
     public void OnPatrol()
     {
         throw new System.NotImplementedException();
     }
 
-    
+    public void FindOut(Transform tr, bool isHide)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void PlayerLeave(bool isHide)
+    {
+        throw new System.NotImplementedException();
+    }
 }
