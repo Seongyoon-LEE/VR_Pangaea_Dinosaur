@@ -4,8 +4,8 @@ using UnityEngine;
 
 public interface IDinoCtrl
 {
-    public void FindOut(Transform tr);
-
+    public void FindOut(Transform tr, bool isHide);
+    public void PlayerLeave(bool isHide);
     IEnumerator UpdateCurrentStatus();
 
     void OnPatrol();

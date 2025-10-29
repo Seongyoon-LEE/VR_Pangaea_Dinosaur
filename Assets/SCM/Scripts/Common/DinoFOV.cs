@@ -16,6 +16,7 @@ public class DinoFOV : MonoBehaviour
     protected Transform playerTr;
     protected bool isRandom = false;
     private Coroutine lightSetupCoroutine = null;
+    [SerializeField] protected bool isFOV = false;
     protected virtual void Start()
     {
         ws = new WaitForSeconds(0.2f);
@@ -108,10 +109,14 @@ public class DinoFOV : MonoBehaviour
 
     protected virtual void OnPlayerRecognized()
     {
+        if (PlayerStateManager.Instance.CurState == PlayerState.Hiding) return;
+
+        isFOV = true;
     }
 
     protected virtual void OnPlayerLost()
     {
+        isFOV = false;
     }
 
     void OnDrawGizmos()

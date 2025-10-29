@@ -8,7 +8,6 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
     private readonly int hashMove = Animator.StringToHash("Move");
     private readonly int hashAttack = Animator.StringToHash("IsAttack");
     private readonly string transparentLayer = "Transparent";
-    private readonly string dinoLayer = "DINO";
     public enum Status
     {
         None, PATROL, TRACE, ATTACK, STUN
@@ -28,6 +27,7 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
     public Renderer[] allRenderers;
     float fadeDuration = 3f;
     bool isFade = false;
+    bool isHide = false;
 
     Coroutine fadeCoroutine = null;
     void Start()
@@ -46,18 +46,20 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
         agent.enabled = true;
     }
 
-    public void FindOut(Transform tr)
+    public void FindOut(Transform tr, bool isHide)
     {
         playerTr = tr;
         FadeIn();
+        this.isHide = isHide;
     }
 
-    public void PlayerLeave()
+    public void PlayerLeave(bool isHide)
     {
         status = Status.PATROL;
         playerTr = null;
         fadeCoroutine = null;
         FadeOut();
+        this.isHide = isHide;
     }
     public IEnumerator UpdateCurrentStatus()
     {
@@ -99,6 +101,12 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
 
     public void OnTrace()
     {
+        if (!isHide)
+        {
+            status = Status.TRACE;
+            return;
+        }
+
         if (Vector3.Distance(path.FlattenY(playerTr.position), path.FlattenY(transform.position)) < 4f)
         {
             status = Status.ATTACK;
@@ -210,4 +218,6 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
 
         SetLayerRecursive(gameObject, LayerMask.NameToLayer(transparentLayer));
     }
+
+    
 }
