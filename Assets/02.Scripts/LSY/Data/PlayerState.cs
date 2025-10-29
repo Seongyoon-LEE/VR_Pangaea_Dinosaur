@@ -10,5 +10,6 @@ public enum PlayerState
     Lighter,    // 라이터를 든 상태
     Camera,     // 카메라를 든 상태
     Hiding,     // 숨는 중이거나 숨어있는 상태
+    Die,        // 사망 상태
     CameraView
 }

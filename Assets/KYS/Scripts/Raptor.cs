@@ -76,7 +76,7 @@ public class Raptor : Dino
         while (!isAttacking)
         {
             //무기를 들고있는것 체크
-            if (/*this.target.GetComponent<KYS_Player_Status>().status == ePlayerStatus.Lighter*/true)
+            if (this.target.GetComponent<PlayerStateManager>().CurState == PlayerState.Revolver)
             {
                 this.weaponLevel = -10;
             }
@@ -171,7 +171,7 @@ public class Raptor : Dino
                     this.agent.destination = this.target.position;
                     //타겟이 숨는 중인지 확인(플레이어 만들어진거 보고 제작)
                     //숨는 중이라면 watchPlayerHide를 true로 변경
-                    if (this.target.GetComponent<KYS_Player_Status>().status == ePlayerStatus.TryHide)
+                    if (this.target.GetComponent<PlayerStateManager>().CurState == PlayerState.Hiding)
                     {
                         watchPlayerHide = true;
                     }
