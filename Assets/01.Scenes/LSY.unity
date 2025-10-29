@@ -634,7 +634,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -178.4, y: -10.4}
+  m_AnchoredPosition: {x: -178.40002, y: -10.400024}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &264312506
@@ -852,7 +852,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 307217224}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47af91abc62e6ae44bdcba5cd2c11128, type: 3}
+  m_Script: {fileID: 11500000, guid: 5849570afdb76864e932d65a638b376f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   eggCountText: {fileID: 264312506}
@@ -986,6 +986,7 @@ GameObject:
   m_Component:
   - component: {fileID: 350378973}
   - component: {fileID: 350378972}
+  - component: {fileID: 350378974}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1024,6 +1025,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &350378974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 350378971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a61b9e9af92c49d4e8024bda3d39f686, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxEggs: 5
+  OnAllEggsCollected:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -1412,6 +1429,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83e4e6cca11330d4088d729ab4fc9d9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_StartingHoverFilters: []
+  m_StartingSelectFilters: []
 --- !u!4 &432782261
 Transform:
   m_ObjectHideFlags: 0

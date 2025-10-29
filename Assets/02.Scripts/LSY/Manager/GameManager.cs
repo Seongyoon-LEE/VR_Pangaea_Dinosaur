@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
 
     [Header("알 수집")]
     public int maxEggs = 5; // 목표 알 개수
-    private int currentEggs = 0; // 현재 모은 알 개수
+    public int currentEggs = 4; // 현재 모은 알 개수
 
     [Header("문 열기 이벤트")]
     public UnityEvent OnAllEggsCollected; // 5/5가 되면 여기서 쾅! 신호를 쏠 거야!
