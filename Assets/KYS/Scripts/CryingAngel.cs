@@ -6,17 +6,18 @@ using UnityEngine.AI;
 public class CryingAngel : Dino
 {
     Renderer render;
-    
-
     private void Start()
-    { 
+    {
         this.render = GetComponent<Renderer>();
         this.agent = GetComponent<NavMeshAgent>();
         this.agent.speed = speed;
         this.target = null;
+
         this.patrol = this.PatrolRoutine();
         this.chase = this.ChaseRoutine();
         this.statusCheck = this.StatusRoutine();
+
+        this.Status = eStatus.Wait;
     }
     
     
@@ -41,19 +42,16 @@ public class CryingAngel : Dino
     }
     IEnumerator StatusRoutine() // 활성화로만 변화
     {
-        eStatus tempStatus = eStatus.Wait;
         while (true)
         {
+            yield return null;
             // 상태변화 조건 : 일정 범위 내에 사람이 있는가(벽 무시)
             Collider[] targetsInViewRadius = Physics.OverlapSphere(transform.position, sensorDist, LayerMask.GetMask(this.playerStr));
             if (targetsInViewRadius.Length > 0)
             {
                 this.target = targetsInViewRadius[0].transform;
-                tempStatus = eStatus.Active;
-            }
-            if (this.Status != tempStatus) // 상태가 변화함
-            {
-                this.Status = tempStatus;
+                this.Status = eStatus.Active;
+                break;
             }
         }
     }

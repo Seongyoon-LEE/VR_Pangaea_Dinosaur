@@ -5,6 +5,8 @@ using UnityEngine.AI;
 
 public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
 {
+    private readonly int hashMove = Animator.StringToHash("Move");
+    private readonly int hashAttack = Animator.StringToHash("IsAttack");
     private readonly string transparentLayer = "Transparent";
     private readonly string dinoLayer = "DINO";
     public enum Status
@@ -27,24 +29,26 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
     float fadeDuration = 3f;
     bool isFade = false;
 
-    Coroutine fadeCoroutine;
+    Coroutine fadeCoroutine = null;
     void Start()
     {
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         ws = new WaitForSeconds(0.3f);
-        path = GameObject.Find("Points").GetComponent<PatrolPoints>();
+        path = GameObject.Find("DeinocheirusPoints").GetComponent<PatrolPoints>();
         allRenderers = GetComponentsInChildren<Renderer>();
         _light = GetComponentInChildren<Light>();
         StartCoroutine(UpdateCurrentStatus());
         SetAlpha(0);
+
+        agent.enabled = false;
+        transform.position = path.GetWayPoint(idx);
+        agent.enabled = true;
     }
 
     public void FindOut(Transform tr)
     {
-        status = Status.TRACE;
         playerTr = tr;
-        fadeCoroutine = null;
         FadeIn();
     }
 
@@ -86,7 +90,7 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
     {
         agent.isStopped = false;
         agent.destination = path.GetWayPoint(idx);
-        //animator.SetFloat(hashWalk, 0.5f);
+        animator.SetFloat(hashMove, 0.5f);
         if (Vector3.Distance(path.FlattenY(path.GetWayPoint(idx)), path.FlattenY(transform.position)) < 5f)
         {
             idx = path.CurrentWayPoint(idx);
@@ -95,14 +99,14 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
 
     public void OnTrace()
     {
-        if (Vector3.Distance(path.FlattenY(playerTr.position), path.FlattenY(transform.position)) < 5f)
+        if (Vector3.Distance(path.FlattenY(playerTr.position), path.FlattenY(transform.position)) < 4f)
         {
             status = Status.ATTACK;
             return;
         }
 
-        //animator.SetFloat(hashWalk, 1f);
-        //animator.SetBool(hashAttack, false);
+        animator.SetFloat(hashMove, 1f);
+        animator.SetBool(hashAttack, false);
         agent.isStopped = false;
         agent.speed = runSpeed;
         agent.destination = playerTr.position;
@@ -110,7 +114,15 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
 
     public void OnAttack()
     {
-        throw new System.NotImplementedException();
+        if (playerTr == null) return;
+
+        animator.SetBool(hashAttack, true);
+        agent.isStopped = true;
+
+        Vector3 taget = (playerTr.position - transform.position).normalized;
+
+        Quaternion rot = Quaternion.LookRotation(taget);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * rotSpeed);
     }
 
     public void OnIdle()
@@ -129,7 +141,7 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
 
     private void SetAlpha(float alpha)
     {
-        _light.intensity = alpha > 0 ? 1000*alpha : 0;
+        //_light.intensity = alpha > 0 ? 1000*alpha : 0;
 
         foreach (Renderer renderer in allRenderers)
         {
@@ -156,6 +168,7 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
     IEnumerator FadeInCoroutine()
     {
         isFade = true;
+        animator.SetFloat(hashMove, 0f);
         SetLayerRecursive(gameObject, 0);
 
         float timeElapsed = 0f;
@@ -174,11 +187,13 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
 
         SetAlpha(1f);
         isFade = false;
+        status = Status.TRACE;
     }
 
     IEnumerator FadeOutCoroutine()
     {
         float timeElapsed = 0f;
+        animator.SetFloat(hashMove, 0f);
 
         while (timeElapsed < fadeDuration)
         {

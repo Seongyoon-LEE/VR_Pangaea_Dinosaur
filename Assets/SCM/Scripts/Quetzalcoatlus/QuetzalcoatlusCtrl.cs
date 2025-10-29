@@ -15,7 +15,7 @@ public class QuetzalcoatlusCtrl : MonoBehaviour, IDinoCtrl
 
     PatrolPoints path;
     int idx = 0;
-    float moveSpeed = 1f;
+    float moveSpeed = 5f;
     float rotSpeed = 10f;
     private Transform playerTr;
     Animator animator;
@@ -27,11 +27,13 @@ public class QuetzalcoatlusCtrl : MonoBehaviour, IDinoCtrl
     [SerializeField] float leftrightValue;
     void Start()
     {
-        path = GameObject.Find("Points").GetComponent<PatrolPoints>();
+        path = GameObject.Find("QuetzalcoatlusPoints").GetComponent<PatrolPoints>();
         animator = transform.GetChild(0).GetComponent<Animator>();
         ws = new WaitForSeconds(0.1f);
+        idx = Random.Range(0, path.GetWayCount());
+        transform.position = path.GetWayPoint(idx, transform);
 
-        StartCoroutine(UpdateCurrentStatus());
+        //StartCoroutine(UpdateCurrentStatus());
     }
 
     public IEnumerator UpdateCurrentStatus()
@@ -52,6 +54,18 @@ public class QuetzalcoatlusCtrl : MonoBehaviour, IDinoCtrl
         }
     }
 
+    private void Update()
+    {
+        switch (status)
+        {
+            case Status.PATROL:
+                OnPatrol();
+                break;
+            case Status.ATTACK:
+                OnAttack();
+                break;
+        }
+    }
 
     private void LateUpdate()
     {
@@ -106,9 +120,8 @@ public class QuetzalcoatlusCtrl : MonoBehaviour, IDinoCtrl
     {
         status = Status.ATTACK;
         playerTr = tr;
-        moveSpeed = 5f;
+        moveSpeed = 30f;
     }
-
     public void OnTrace()
     {
         throw new System.NotImplementedException();

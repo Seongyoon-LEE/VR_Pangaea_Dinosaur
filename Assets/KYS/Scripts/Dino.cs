@@ -4,7 +4,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
-using static UnityEngine.GraphicsBuffer;
 /*
  공룡에 필요한 내용
 1. 타겟쪽으로 움직이는 내용(navMesh 및 그걸 활용하는 함수, 매개변수로 Vector3)
@@ -18,8 +17,9 @@ public abstract class Dino : MonoBehaviour
 {
     public float speed;
     public float angularSpeed;
+    public PatrolPointsControl patrolPoints;
     protected NavMeshAgent agent;
-    protected readonly string playerStr = "Player";
+    protected readonly string playerStr = "PLAYER";
     protected readonly string playerHideStr = "PlayerHide";
     private eStatus _status;
 
@@ -28,7 +28,6 @@ public abstract class Dino : MonoBehaviour
     protected IEnumerator statusCheck;
     protected Transform target;
     public float sensorDist = 100;
-
     public eStatus Status
     {
         get
@@ -38,7 +37,7 @@ public abstract class Dino : MonoBehaviour
         set
         {
             this._status = value;
-            if(value == eStatus.Active)
+            if (value == eStatus.Active)
             {
                 Active();
             }
@@ -64,7 +63,16 @@ public abstract class Dino : MonoBehaviour
     protected WaitForSeconds wsForMove = new WaitForSeconds(0.2f);
     protected IEnumerator PatrolRoutine()
     {
-        yield return null; // 순찰 포인트 잡아서 순찰하도록
+        this.agent.SetDestination(this.patrolPoints.GetNextPoint());
+        while (true)
+        {
+            Debug.Log(Vector3.Distance(this.transform.position, this.patrolPoints.GetPoint()));
+            if(Vector3.Distance(this.transform.position, this.patrolPoints.GetPoint()) < 10f)
+            {
+                this.agent.SetDestination(this.patrolPoints.GetNextPoint());
+            }
+            yield return wsForMove;
+        }
     }
     protected IEnumerator ChaseRoutine()
     {
@@ -114,14 +122,17 @@ public abstract class Dino : MonoBehaviour
                     // 중간에 장애물에 막힘
                 }*/
             }
-            if (Vector3.Distance(this.transform.position, this.agent.destination) < 0.5f)
+            if (Vector3.Distance(this.transform.position, this.agent.destination) < 2f)
             {
                 //목적지에 도착함(마지막으로 본 장소)
                 //위에서 시야에 보이는지 이미 체크함 / 보였다면 continue해서 코루틴 처음으로 감
                 //즉 여기에 왔으면 안보이고, 목적지에도 도착한거니 다시 순찰
                 this.target = null;
                 this.Status = eStatus.Wait;
+                break;
             }
+            //위 조건 어디에도 안걸렸다면 걸릴때까지 다시
+            yield return wsForMove;
 
         }
     }

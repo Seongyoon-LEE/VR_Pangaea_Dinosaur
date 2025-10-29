@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Experimental.XR.Interaction;
-using static UnityEngine.GraphicsBuffer;
 /*
 플레이어 위치 값을 멀리서부터 알 수 있다. 딜로포사우루스는 플레이어 이동속도에 0.5배의 속도로 쫒아온다.
 플레이어에게 닿을 시 공격하며 라이터를 들 시 멀리 도망간다.
@@ -21,11 +20,14 @@ public class Dilopo : Dino
         //this.moveSpeed = this.playerTr.GetComponent<Player>().moveSpeed / 2;
         this.agent = GetComponent<NavMeshAgent>();
         this.agent.speed = speed;
+        this.target = null;
         this.patrol = this.PatrolRoutine();
         this.chase = this.ChaseRoutine();
+        this.statusCheck = this.StatusRoutine();
+        this.Status = eStatus.Wait;
     }
     WaitForSeconds wsForStun = new WaitForSeconds(3);
-    IEnumerator MoveRoutine(Transform player)
+    /*IEnumerator MoveRoutine(Transform player)
     {
         var playerStatus = player.gameObject.GetComponent<KYS_Player_Status>();
         //매개변수로 player를 받아와서 상태 추적, transform말고 상태값 들어있는 스크립트
@@ -53,23 +55,20 @@ public class Dilopo : Dino
             }
             
         }
-    }
+    }*/
 
     IEnumerator StatusRoutine() // 활성화로만 변화
     {
-        eStatus tempStatus = eStatus.Wait;
         while (true)
         {
+            yield return null;
             // 상태변화 조건 : 일정 범위 내에 사람이 있는가(벽 무시)
             Collider[] targetsInViewRadius = Physics.OverlapSphere(transform.position, sensorDist, LayerMask.GetMask(this.playerStr));
             if (targetsInViewRadius.Length > 0)
             {
                 this.target = targetsInViewRadius[0].transform;
-                tempStatus = eStatus.Active;
-            }
-            if (this.Status != tempStatus) // 상태가 변화함
-            {
-                this.Status = tempStatus;
+                this.Status = eStatus.Active;
+                break;
             }
         }
     }

@@ -5,6 +5,7 @@ using UnityEngine;
 public interface IDinoCtrl
 {
     public void FindOut(Transform tr);
+
     IEnumerator UpdateCurrentStatus();
 
     void OnPatrol();

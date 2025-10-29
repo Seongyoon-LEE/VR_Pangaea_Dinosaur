@@ -6,10 +6,10 @@ public class TitanboaTrigger : MonoBehaviour
 {
     private readonly string playerTag = "Player";
     private GameObject torch;
-    TitanboaCtrl titanboaCtrl;
+    public TitanboaCtrl titanboaCtrl;
     void Start()
     {
-        titanboaCtrl = GameObject.Find("Titanoboa").GetComponent<TitanboaCtrl>();
+        titanboaCtrl = transform.parent.GetChild(0).GetComponent<TitanboaCtrl>();
         torch = GameObject.FindWithTag(playerTag).transform.GetChild(0).gameObject;
     }
 
@@ -22,6 +22,14 @@ public class TitanboaTrigger : MonoBehaviour
         else if (other.CompareTag(playerTag))
         {
             titanboaCtrl.OnBoaTigger(true);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag(playerTag))
+        {
+            titanboaCtrl.OnBoaTigger(false);
         }
     }
 
