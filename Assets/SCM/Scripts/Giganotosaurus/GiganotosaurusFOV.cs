@@ -30,6 +30,7 @@ public class GiganotosaurusFOV : DinoFOV
         {
             // ªÁ∏¡√≥∏Æ
             print("ªÁ∏¡");
+            GameManager.Instance.Die();
         }
     }
     protected override void OnPlayerLost()
