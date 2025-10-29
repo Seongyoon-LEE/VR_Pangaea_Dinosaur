@@ -25,6 +25,8 @@ public class QuetzalcoatlusCtrl : MonoBehaviour, IDinoCtrl
     [SerializeField] float curTime = 0f;
     [SerializeField] float updownValue;
     [SerializeField] float leftrightValue;
+
+    bool isHide = false;
     void Start()
     {
         path = GameObject.Find("QuetzalcoatlusPoints").GetComponent<PatrolPoints>();
@@ -116,12 +118,14 @@ public class QuetzalcoatlusCtrl : MonoBehaviour, IDinoCtrl
         transform.Translate(Vector3.forward * moveSpeed * Time.fixedDeltaTime);
     }
 
-    public void FindOut(Transform tr)
+    public void FindOut(Transform tr, bool isHide)
     {
         status = Status.ATTACK;
         playerTr = tr;
         moveSpeed = 30f;
+        this.isHide = isHide;
     }
+
     public void OnTrace()
     {
         throw new System.NotImplementedException();
@@ -133,4 +137,8 @@ public class QuetzalcoatlusCtrl : MonoBehaviour, IDinoCtrl
     }
 
     
+    public void PlayerLeave(bool isHide)
+    {
+        throw new System.NotImplementedException();
+    }
 }
