@@ -121,6 +121,17 @@ public class DragonflyMove : MonoBehaviour, IDinoCtrl
 
     public void OnTrace()
     {
+        if (PlayerStateManager.Instance.CurState == PlayerState.Lighter)
+        {
+            // È¸ÇÇ
+            //status = Status.ESCAPE;
+            //return;
+
+            // º¹±Í
+            status = Status.RETURN;
+            isPosition = false;
+            return;
+        }
         if (PlayerStateManager.Instance.CurState == PlayerState.Hiding)
         {
             status = Status.RETURN;
@@ -157,6 +168,18 @@ public class DragonflyMove : MonoBehaviour, IDinoCtrl
 
     public void OnAttack()
     {
+        if (PlayerStateManager.Instance.CurState == PlayerState.Lighter)
+        {
+            // È¸ÇÇ
+            //status = Status.ESCAPE;
+            //return;
+
+            // º¹±Í
+            status = Status.RETURN;
+            isPosition = false;
+            return;
+        }
+
         if (Time.time < nextAttackTime) return;
 
         animator.SetBool(hashAttack, true);
@@ -215,18 +238,6 @@ public class DragonflyMove : MonoBehaviour, IDinoCtrl
 
             
             if (status == Status.RETURN) continue;
-
-            if (isTorch)
-            {
-                // È¸ÇÇ
-                //status = Status.ESCAPE;
-                //break;
-
-                // º¹±Í
-                status = Status.RETURN;
-                isPosition = false;
-                continue;
-            }
 
 
             float dist = (playerTr.position - transform.position).sqrMagnitude;

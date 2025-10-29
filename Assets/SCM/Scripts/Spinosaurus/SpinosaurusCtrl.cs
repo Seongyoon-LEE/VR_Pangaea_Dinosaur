@@ -123,7 +123,7 @@ public class SpinosaurusCtrl : MonoBehaviour, IDinoCtrl
     {
         if (!isHide)
         {
-            status = Status.TRACE;
+            status = Status.PATROL;
             return;
         }
 

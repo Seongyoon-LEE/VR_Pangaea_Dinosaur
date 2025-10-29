@@ -5,17 +5,17 @@ using UnityEngine;
 public class TitanboaTrigger : MonoBehaviour
 {
     private readonly string playerTag = "Player";
-    private GameObject torch;
+    public GameObject torch;
     public TitanboaCtrl titanboaCtrl;
     void Start()
     {
         titanboaCtrl = transform.parent.GetChild(0).GetComponent<TitanboaCtrl>();
-        torch = GameObject.FindWithTag(playerTag).transform.GetChild(0).gameObject;
+        torch = GameObject.FindWithTag(playerTag).transform.GetChild(0).GetChild(1).GetChild(1).GetChild(0).gameObject;
     }
 
     private void OnTriggerStay(Collider other)
     {
-        if (OnTorch())
+        if (PlayerStateManager.Instance.CurState == PlayerState.Lighter)
         {
             titanboaCtrl.OnBoaTigger(false);
         }
