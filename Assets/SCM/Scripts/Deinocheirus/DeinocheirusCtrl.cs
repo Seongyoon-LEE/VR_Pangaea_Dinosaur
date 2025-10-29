@@ -39,7 +39,7 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
         allRenderers = GetComponentsInChildren<Renderer>();
         _light = GetComponentInChildren<Light>();
         StartCoroutine(UpdateCurrentStatus());
-        SetAlpha(0);
+        SetAlpha(1f);
 
         agent.enabled = false;
         transform.position = path.GetWayPoint(idx);
@@ -55,12 +55,14 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
 
     public void PlayerLeave(bool isHide)
     {
+        if (PlayerStateManager.Instance.CurState != PlayerState.Hiding) return;
+
         status = Status.PATROL;
         playerTr = null;
-        fadeCoroutine = null;
         FadeOut();
         this.isHide = isHide;
     }
+
     public IEnumerator UpdateCurrentStatus()
     {
         while (true)
@@ -101,11 +103,11 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
 
     public void OnTrace()
     {
-        if (!isHide)
-        {
-            status = Status.TRACE;
-            return;
-        }
+        //if (!isHide)
+        //{
+        //    status = Status.PATROL;
+        //    return;
+        //}
 
         if (Vector3.Distance(path.FlattenY(playerTr.position), path.FlattenY(transform.position)) < 4f)
         {
@@ -170,7 +172,7 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
 
     void FadeOut()
     {
-        if (fadeCoroutine != null) return;
+        if (fadeCoroutine == null) return;
         fadeCoroutine = StartCoroutine(FadeOutCoroutine());
     }
     IEnumerator FadeInCoroutine()
@@ -208,15 +210,18 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
             timeElapsed += Time.deltaTime;
             float t = timeElapsed / fadeDuration;
 
-            float newAlpha = Mathf.Lerp(1f, 0f, t);
+            float newAlpha = Mathf.Lerp(1f, 0.2f, t);
             SetAlpha(newAlpha);
 
             yield return null;
         }
 
-        SetAlpha(0f);
 
         SetLayerRecursive(gameObject, LayerMask.NameToLayer(transparentLayer));
+
+        SetAlpha(1f);
+
+        fadeCoroutine = null;
     }
 
     

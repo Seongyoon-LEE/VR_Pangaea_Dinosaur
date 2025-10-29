@@ -104,6 +104,8 @@ public class SpinosaurusCtrl : MonoBehaviour, IDinoCtrl
 
     public void PlayerLeave(bool isHide)
     {
+        if (PlayerStateManager.Instance.CurState != PlayerState.Hiding) return;
+
         this.isHide = isHide;
     }
     public void OnPatrol()

@@ -19,7 +19,7 @@ public class GiganotosaurusCtrl : MonoBehaviour
         if (playerTr != null)
         {
             float playerZSpeed = Mathf.Abs(GetZAxisMovementSpeed());
-            float currentZ = playerTr.position.z;
+            float currentZ = playerTr.position.z * 0.96f;
 
             Vector3 targetPosition = new Vector3(transform.position.x, transform.position.y, currentZ);
 
