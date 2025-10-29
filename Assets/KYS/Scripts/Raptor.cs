@@ -25,6 +25,7 @@ public class Raptor : Dino
     void Start()
     {
         this.raptorLayer = LayerMask.GetMask("Raptor");
+        this.target = GameObject.FindAnyObjectByType<PlayerMovement>().transform;
         StartCoroutine(SeenRoutine());
         StartCoroutine(AroundRoutine());
         StartCoroutine(WeaponCheckRoutine());

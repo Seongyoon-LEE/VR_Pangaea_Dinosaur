@@ -25,7 +25,6 @@ public class RevolverCtrl : MonoBehaviour, IEquippable
     public Vector3 positionOffset = Vector3.zero; // 장착 위치 오프셋
     public Vector3 rotationOffset = Vector3.zero; // 장착 회전 오프셋
 
-
     float nextFireTime = 0f; // 다음 발사 가능 시간
     Vector3 originalPosition; // 총의 원래 위치 (반동 계산)
     Quaternion originalRotation; // 총의 원래 회전 (반동 계산)
@@ -33,26 +32,9 @@ public class RevolverCtrl : MonoBehaviour, IEquippable
     Coroutine recoilCoroutine; // 반동 코루틴 참조
     XRBaseController controller; // XR 컨트롤러 진동을 위한 컨트롤러 참조
     //bool isReloading = false; // 재장전 중인지 여부
-    private void OnEnable()
-    {
-        // performed(트리거 당겼을때) 이벤트에 발사 함수 등록
-        shootActionReference.action.performed += OnShoot;
-        //reloadActionReference.action.performed += OnReload;
-    }
-    private void OnDisable()
-    {
-        // performed(트리거 당겼을때) 이벤트에서 발사 함수 해제
-        shootActionReference.action.performed -= OnShoot;
-        //reloadActionReference.action.performed -= OnReload;
-        
-    }
-    private void Awake()
-    {
-        controller = GetComponentInParent<XRBaseController>();
-        
-    }
     void OnShoot(InputAction.CallbackContext context)
     {
+        Debug.Log("쾅! 트리거 당겼음!"); // ?? 1. 이 줄을 추가해봐!
         // 재장전이 아닐때 
         if (Time.time >= nextFireTime)
         {
@@ -133,8 +115,8 @@ public class RevolverCtrl : MonoBehaviour, IEquippable
     //}
     IEnumerator Recoil()
     {
-        // 목표 각도 = 원래 각도에서 x축으로 -30도 더하기
-        Vector3 targetEulerAngles = originalEulerAngles + new Vector3(30f, 0, 0);
+        // 목표 각도 = 원래 각도에서 y축으로 -30도 더하기
+        Vector3 targetEulerAngles = originalEulerAngles + new Vector3(0, -30, 0);
 
         // 1. 목표 각도까지 반동 (빠르게)
         float elapsed = 0f;
@@ -177,24 +159,28 @@ public class RevolverCtrl : MonoBehaviour, IEquippable
     {
         // 손을 부모로 정함
         transform.SetParent(handParent);
+
+        controller = GetComponentInParent<XRBaseController>();
         // 정한 오프셋 위치값을 
         transform.localPosition = positionOffset;
         transform.localRotation = Quaternion.Euler(rotationOffset);
         // 게임 오브젝트 활성화
         gameObject.SetActive(true);
         // 총 활성화 되었으니 입력 받음
-        shootActionReference.action.performed += OnShoot;
+        shootActionReference.action.actionMap.Enable();
         shootActionReference.action.Enable();
+        shootActionReference.action.performed += OnShoot;
 
         PlayerStateManager.Instance.ChangeState(PlayerState.Revolver);
     }
     public void Unequip()
     {
         shootActionReference.action.performed -= OnShoot;
-        shootActionReference.action.Disable();
+        //shootActionReference.action.Disable();
         // 부모 관계 해제
         transform.SetParent(null);
         // 게임 오브젝트 비활성화
         gameObject.SetActive(false);
+        PlayerStateManager.Instance.ChangeState(PlayerState.Hand);
     }
 }

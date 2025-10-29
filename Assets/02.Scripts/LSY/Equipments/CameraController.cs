@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 public class CameraController : MonoBehaviour, IEquippable
 {
     [Header("핵심 부품")]
-    public GameObject cameraEffect; // 카메라 이펙트 오브젝트
+    //public GameObject cameraEffect; // 카메라 이펙트 오브젝트
 
-    public Slider batterySlider; // 배터리 잔량 슬라이더
+    public Image batteryImage;
 
     [Header("배터리 설정")]
     public float maxBattery = 100f; // 최대 배터리 용량
-    public float drainRate = 5f; // 배터리 소모 속도 (초당)
+    public float drainRate = 0.1f; // 배터리 소모 속도 (초당)
     private float currentBattery; // 현재 배터리 잔량
 
     [Header("입력 액션")]
@@ -23,7 +24,16 @@ public class CameraController : MonoBehaviour, IEquippable
     public Vector3 positionOffset = Vector3.zero; // 장착 위치 오프셋
     public Vector3 rotationOffset = Vector3.zero; // 장착 회전 오프셋
 
+    [Header("카메라 모드 참조")]
+    public GameObject cameraUIPanel; // 아까 만든 'Camcorder_View' UI 패널
+    public GameObject heldCameraModel; // 손에 들고있는 3D 카메라 모델링
+
+    [Header("카메라 뷰 전용")]
+    public Camera mainCamera;
+    public LayerMask transparentLayer;
+
     private bool isCameraOn = false; // 카메라 켜짐 상태 여부
+    private int originalCullingMask;
 
     private void Awake()
     {
@@ -41,12 +51,47 @@ public class CameraController : MonoBehaviour, IEquippable
         useAction.action.performed += OnUsePressed;
         useAction.action.Enable();
 
+        if (mainCamera != null)
+        {
+            originalCullingMask = mainCamera.cullingMask;
+        }
+
         // 카메라든 상태 
         PlayerStateManager.Instance.ChangeState(PlayerState.Camera);
-        if(batterySlider != null)
-            batterySlider.gameObject.SetActive(true);
+        if (batteryImage != null)
+            batteryImage.gameObject.SetActive(true);
     }
+    void ToggleCameraView(bool isOn)
+    {
+        if (isOn) //  카메라 켤 때
+        {
+            // 1. 상태 변경 (레이저 끄기 등)
+            PlayerStateManager.Instance.ChangeState(PlayerState.CameraView);
+            // 2. 손에 든 3D 모델링 숨기기 (UI로 대체하니까!)
+            heldCameraModel.SetActive(false);
+            // 3. 카메라 UI 켜기
+            cameraUIPanel.SetActive(true);
 
+            if (mainCamera != null)
+            {
+                // originalCullingMask (평상시) 에다가 transparentLayer (투명 레이어)를 추가
+                mainCamera.cullingMask = originalCullingMask | transparentLayer.value;
+            }
+        }
+        else //  카메라 끌 때
+        {
+            // 1. 상태 복구
+            PlayerStateManager.Instance.ChangeState(PlayerState.Camera); // 혹은 PlayerState.Camera (들고만 있는 상태)
+                                                                       // 2. 손에 든 3D 모델링 다시 보이기
+            heldCameraModel.SetActive(true);
+            // 3. 카메라 UI 끄기
+            cameraUIPanel.SetActive(false);     
+            if (mainCamera != null)
+            {
+                mainCamera.cullingMask = originalCullingMask;
+            }
+        }
+    }
     public void Unequip()
     {
         useAction.action.performed -= OnUsePressed;
@@ -55,8 +100,8 @@ public class CameraController : MonoBehaviour, IEquippable
         TurnOffCamera(); // 아이템 집어 넣을때 끄기
         transform.SetParent(null);
         gameObject.SetActive(false);
-        if (batterySlider != null)
-            batterySlider.gameObject.SetActive(false);
+        if (batteryImage != null)
+            batteryImage.gameObject.SetActive(false);
     }
     // 매 프레임 배터리 소모 체크
     void Update()
@@ -99,14 +144,14 @@ public class CameraController : MonoBehaviour, IEquippable
     void TurnOnCamera()
     {
         isCameraOn = true;
-        // TOOD: 카메라 소리 재생
+        ToggleCameraView(true);
     }
     void TurnOffCamera()
     {
         isCameraOn = false;
-        // 소리 끄는 재생
+        ToggleCameraView(false);
     }
-    // 배터리 주울때 호출할 함수
+    // 배터리 주울때 호출할 함수   
     public void RechargeBattery()
     {
         currentBattery = maxBattery;
@@ -116,9 +161,9 @@ public class CameraController : MonoBehaviour, IEquippable
     // 배터리 UI 업데이트
     void UpdateBatteryUI()
     {
-        if (batterySlider != null)
+        if (batteryImage != null) // 
         {
-            batterySlider.value = currentBattery / maxBattery;
+            batteryImage.fillAmount = currentBattery / maxBattery;
         }
     }
 }

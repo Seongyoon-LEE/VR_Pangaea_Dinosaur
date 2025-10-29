@@ -29,6 +29,8 @@ public class SpinosaurusCtrl : MonoBehaviour, IDinoCtrl
     private float downTime = 5f;
     private float topY = 1f;
     private float bottomY = -11f;
+    private bool isEnable = false;
+    bool isHide = false;
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -86,17 +88,26 @@ public class SpinosaurusCtrl : MonoBehaviour, IDinoCtrl
     }
     public void DinoAppeared()
     {
+        isEnable = true;
         agent.enabled = true;
         rb.useGravity = true;
         StartCoroutine(UpdateCurrentStatus());
         status = Status.PATROL;
     }
-    public void FindOut(Transform tr)
+    public void FindOut(Transform tr, bool isHide)
     {
+        if (!isEnable) return;
         status = Status.TRACE;
         playerTr = tr;
+        this.isHide = isHide;
     }
 
+    public void PlayerLeave(bool isHide)
+    {
+        if (PlayerStateManager.Instance.CurState != PlayerState.Hiding) return;
+
+        this.isHide = isHide;
+    }
     public void OnPatrol()
     {
         agent.isStopped = false;
@@ -110,6 +121,12 @@ public class SpinosaurusCtrl : MonoBehaviour, IDinoCtrl
 
     public void OnTrace()
     {
+        if (!isHide)
+        {
+            status = Status.TRACE;
+            return;
+        }
+
         if (Vector3.Distance(path.FlattenY(playerTr.position), path.FlattenY(transform.position)) < 6f)
         {
             status = Status.ATTACK;

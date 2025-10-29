@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class QuetzalcoatlusFOV : DinoFOV
 {
-    
-
     QuetzalcoatlusCtrl quetzalcoatlus;
     protected override void Start()
     {
@@ -26,7 +24,7 @@ public class QuetzalcoatlusFOV : DinoFOV
     {
         base.OnPlayerRecognized();
         print("Ã£À½");
-        quetzalcoatlus.FindOut(playerTr);
+        quetzalcoatlus.FindOut(playerTr, isFOV);
         _light.enabled = false;
     }
 }
