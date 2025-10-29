@@ -96,7 +96,8 @@ public class PlayerStateManager : MonoBehaviour
 
                 // "나오자마자" UI 다시 띄우기
                 hidePromptText.text = "Press [LT] to Hide";
-                hidePromptPanel.SetActive(true);
+                currentHidingSpot = null;
+                hidePromptPanel.SetActive(false);
             }
         }
         // 2. (숨을 곳 근처에서 누름) -> "숨기"
@@ -127,6 +128,8 @@ public class PlayerStateManager : MonoBehaviour
             case PlayerState.Hand:      // 맨손 상태
             case PlayerState.Inventory: // 인벤토리 열었을 때
                 SetHandRays(true); // 양손 레이 켜기 
+                SetHandModels(true); 
+                targetProfile = normalProfile;
                 break;
 
             case PlayerState.Revolver:  // 총 들었을 때
