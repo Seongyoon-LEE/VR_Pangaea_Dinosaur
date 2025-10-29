@@ -160,6 +160,8 @@ public class SpinosaurusCtrl : MonoBehaviour, IDinoCtrl
         // 공격시 즉사
         // 사망 처리
         // 범위에서 벗어났을 때 추격 구현 필요X
+
+        GameManager.Instance.Die();
     }
 
     public void OnIdle()

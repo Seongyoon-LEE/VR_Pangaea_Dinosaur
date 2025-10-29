@@ -133,6 +133,8 @@ public class DeinocheirusCtrl : MonoBehaviour, IDinoCtrl
 
         Quaternion rot = Quaternion.LookRotation(taget);
         transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * rotSpeed);
+
+        GameManager.Instance.Die();
     }
 
     public void OnIdle()

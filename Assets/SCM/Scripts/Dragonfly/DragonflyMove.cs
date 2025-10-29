@@ -186,6 +186,8 @@ public class DragonflyMove : MonoBehaviour, IDinoCtrl
         agent.isStopped = true;
 
         nextAttackTime = Time.time + attackSpeed;
+
+        GameManager.Instance.Die();
     }
 
     // 플레이어 반대 방향으로 도망가는 로직

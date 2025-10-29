@@ -116,6 +116,11 @@ public class QuetzalcoatlusCtrl : MonoBehaviour, IDinoCtrl
 
         transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(movePos), Time.fixedDeltaTime * rotSpeed);
         transform.Translate(Vector3.forward * moveSpeed * Time.fixedDeltaTime);
+
+        if (Vector3.Distance(path.FlattenY(playerTr.position), path.FlattenY(transform.position)) < 1f)
+        {
+            GameManager.Instance.Die();
+        }
     }
 
     public void FindOut(Transform tr, bool isHide)

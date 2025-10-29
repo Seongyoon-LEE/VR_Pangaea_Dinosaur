@@ -25,6 +25,8 @@ public class TitanboaCtrl : MonoBehaviour
                 animator.SetTrigger(hashForward);
             rig.weight = type ? 1f : 0f;
             isTirrger = type;
+
+            GameManager.Instance.Die();
         }
     }
 }
