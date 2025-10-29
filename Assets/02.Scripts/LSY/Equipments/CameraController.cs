@@ -14,7 +14,7 @@ public class CameraController : MonoBehaviour, IEquippable
 
     [Header("배터리 설정")]
     public float maxBattery = 100f; // 최대 배터리 용량
-    public float drainRate = 0.25f; // 배터리 소모 속도 (초당)
+    public float drainRate = 0.1f; // 배터리 소모 속도 (초당)
     private float currentBattery; // 현재 배터리 잔량
 
     [Header("입력 액션")]
